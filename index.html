@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mission to Saturn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#080c24; --bg2:#0f1640; --card:#131b4b; --card2:#1c2762; --line:#33428f;
+  --gold:#f2d08e; --amber:#e0a24f; --ice:#8fe3f0; --ink:#f3f4ff; --mute:#b6bde8;
+  --good:#7be3a7; --bad:#ff9c8f; --focus:#ffe28a;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.55;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--serif);font-weight:800;line-height:1.15;margin:0}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px 24px;background:rgba(8,12,36,.92);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.brand{font-family:var(--serif);font-weight:800;font-size:1.35rem;color:var(--gold);white-space:nowrap}
+#steps{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:260px}
+.step{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 14px;font-size:.9rem;cursor:pointer;color:var(--mute)}
+.step[aria-current="step"]{background:var(--gold);color:#241a05;border-color:var(--gold);font-weight:700}
+.step.done{color:var(--good);border-color:var(--good)}
+.step:disabled{opacity:.4;cursor:not-allowed}
+#who{color:var(--mute);font-size:.95rem}
+main{max-width:1320px;margin:0 auto;padding:22px 24px 80px}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.labcard{padding:14px;position:sticky;top:calc(72px + env(safe-area-inset-top,0px))}
+@media (max-width:980px){.labcard{position:static}}
+canvas#cv{display:block;width:100%;height:clamp(320px,46vw,470px);border-radius:10px;background:#070a1e;touch-action:manipulation;cursor:pointer}
+#modes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.tab{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:7px 14px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--ice);color:#06222a;border-color:var(--ice);font-weight:700}
+#controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:12px;min-height:40px}
+.ctl{display:flex;gap:10px;align-items:center;color:var(--mute)}
+input[type=range]{accent-color:var(--gold);width:min(260px,60vw)}
+.rd{font-weight:700;color:var(--gold)}
+.btn{border:0;background:var(--gold);color:#241a05;font-weight:700;border-radius:10px;padding:10px 20px;cursor:pointer}
+.btn.sm{padding:6px 14px;font-size:.95rem}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{border:1px solid var(--line);background:var(--bg2);border-radius:999px;padding:4px 12px;font-size:.92rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--amber);color:#2a1604;border-color:var(--amber);font-weight:700}
+.eyebrow{color:var(--mute);margin:0 0 6px;font-size:.95rem}
+h2.stage-title{font-size:2.1rem;margin-bottom:8px}
+.lead{margin:0 0 14px;color:var(--ink)}
+.info{background:var(--card2);border-left:4px solid var(--ice);border-radius:8px;padding:12px 16px;margin:14px 0}
+.info h3{font-size:1.15rem;margin-bottom:4px;color:var(--ice)}
+.info p{margin:0}
+.disc{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.disc li{display:flex;gap:10px;align-items:flex-start;color:var(--mute)}
+.disc li::before{content:"";flex:none;width:18px;height:18px;margin-top:4px;border:2px solid var(--line);border-radius:50%}
+.disc li.on{color:var(--ink)}
+.disc li.on::before{background:var(--good);border-color:var(--good);box-shadow:inset 0 0 0 3px var(--card)}
+h3.sec{font-size:1.25rem;margin:22px 0 8px}
+.q{border-top:1px solid var(--line);padding:16px 0}
+.qtext{margin:0 0 10px;font-weight:700}
+.qn{color:var(--gold);margin-right:4px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;text-align:left;align-items:flex-start;width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer}
+.opt b{flex:none;width:26px;height:26px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-size:.9rem}
+.opt:hover:not(:disabled){border-color:var(--gold)}
+.opt.bad{border-color:var(--bad);color:var(--bad);text-decoration:line-through;opacity:.8}
+.opt.ok{border-color:var(--good);background:rgba(123,227,167,.14)}
+.opt.sel{border-color:var(--gold);background:rgba(242,208,142,.14)}
+.fb{margin:8px 0 0;min-height:1.4em;font-size:.98rem}
+.fb.ok{color:var(--good)} .fb.bad{color:var(--bad)}
+table.match{width:100%;border-collapse:collapse}
+table.match td{padding:6px 8px 6px 0;vertical-align:middle}
+select{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
+select.ok{border-color:var(--good)} select.bad{border-color:var(--bad)}
+textarea{width:100%;min-height:90px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.nav{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:24px;flex-wrap:wrap}
+.nav .hint{color:var(--mute);font-size:.95rem}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--gold);color:#241a05;font-weight:700;padding:10px 20px;border-radius:999px;transition:.3s;pointer-events:none;z-index:50}
+#toast.show{transform:translate(-50%,0);opacity:1}
+.hero h1{font-size:clamp(2.4rem,5vw,3.6rem);margin-bottom:12px}
+.hero .steps6{margin:12px 0 18px;padding-left:22px}
+.name{width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:6px 0 14px}
+.qtext select{width:auto;display:inline-block;margin:0 6px;padding:4px 8px;font-weight:400}
+.qt{color:var(--mute);font-weight:400;font-size:.9rem}
+.pp{margin-bottom:14px}
+.pp.done{color:var(--good);padding:10px 20px}
+.pp.locked{color:var(--mute);opacity:.7;padding:10px 20px}
+.bank{background:var(--card2);border-radius:8px;padding:8px 14px;margin:10px 0}
+.report h2{font-size:2rem}
+.score{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+.score div{background:var(--card2);border-radius:10px;padding:10px 18px}
+.score b{display:block;font-family:var(--serif);font-size:1.8rem;color:var(--gold)}
+.rq{margin:0 0 10px;padding-left:0;list-style:none}
+.rq li{padding:6px 0;border-top:1px solid var(--line)}
+.rq .a{color:var(--ice)}
+.rq .t{color:var(--mute);font-size:.9rem}
+@media print{
+  body{background:#fff;color:#000;font-size:12pt}
+  .top,.noprint,#toast{display:none!important}
+  .card{background:#fff;border:0;padding:0}
+  .rq .a{color:#000;font-weight:700} .rq .t,.rq li{color:#333;border-color:#ccc}
+  .score div{background:#eee} .score b{color:#000}
+  h2,h3{color:#000}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Mission to Saturn</div>
+  <nav id="steps" aria-label="Mission steps"></nav>
+  <div id="who"></div>
+</header>
+<main id="main"></main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+'use strict';
+var TAU=Math.PI*2;
+function clamp(v,a,b){return Math.min(b,Math.max(a,v));}
+function lerp(a,b,t){return a+(b-a)*t;}
+var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var MO=calm?0.25:1;
+function h(tag,attrs){
+  var e=document.createElement(tag);
+  for(var k in (attrs||{})){
+    var v=attrs[k];
+    if(k==='class')e.className=v;
+    else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),v);
+    else if(v!==false&&v!=null)e.setAttribute(k,v===true?'':v);
+  }
+  for(var i=2;i<arguments.length;i++){
+    var kid=arguments[i];
+    if(Array.isArray(kid)){kid.forEach(function(x){if(x!=null&&x!==false)e.append(x.nodeType?x:document.createTextNode(x));});}
+    else if(kid!=null&&kid!==false)e.append(kid.nodeType?kid:document.createTextNode(kid));
+  }
+  return e;
+}
+var main=document.getElementById('main');
+var S={name:'',stage:0,ans:{},disc:{},vc:0};
+var N=7;
+
+/* ---------- shared drawing ---------- */
+var stars=[];for(var i=0;i<150;i++)stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.3,p:Math.random()*TAU,s:.5+Math.random()*1.5});
+function drawSpace(c,w,hh,t){
+  var g=c.createLinearGradient(0,0,0,hh);g.addColorStop(0,'#0b1236');g.addColorStop(1,'#060919');
+  c.fillStyle=g;c.fillRect(0,0,w,hh);
+  c.fillStyle='#fff';
+  stars.forEach(function(s){c.globalAlpha=calm?.6:.35+.45*Math.sin(t*s.s+s.p)*.5+.2;c.fillRect(s.x*w,s.y*hh,s.r,s.r);});
+  c.globalAlpha=1;
+}
+var BANDS=[[.08,'#b99458'],[.10,'#dcc28c'],[.12,'#c9a468'],[.14,'#ecd7a5'],[.12,'#d3b074'],[.14,'#e8cf98'],[.12,'#c29c60'],[.10,'#dcc28c'],[.08,'#b48f55']];
+function planet(c,cx,cy,R,o){
+  o=o||{};var ob=o.ob==null?0.09:o.ob,ry=R*(1-ob),t=o.t||0;
+  c.save();c.beginPath();c.ellipse(cx,cy,R,ry,0,0,TAU);c.clip();
+  var y=cy-ry,i;
+  for(i=0;i<BANDS.length;i++){var bh=ry*2*BANDS[i][0];c.fillStyle=BANDS[i][1];c.fillRect(cx-R,y,2*R,bh+1);
+    var sp=o.speeds?o.speeds[i]:60;
+    for(var k=0;k<4;k++){
+      var u=((k*.37+i*.13+t*sp*.00018*MO)%1+1)%1;
+      c.fillStyle=(k%2)?'rgba(255,248,225,.16)':'rgba(120,80,30,.14)';
+      c.beginPath();c.ellipse(cx-R+u*2*R,y+bh/2,R*.3,bh*.28,0,0,TAU);c.fill();
+    }
+    if(o.sel===i){c.strokeStyle='#fff';c.lineWidth=2;c.strokeRect(cx-R,y+1,2*R,bh-1);}
+    y+=bh;}
+  var g=c.createRadialGradient(cx-R*.35,cy-R*.3,R*.1,cx,cy,R*1.05);
+  g.addColorStop(0,'rgba(255,255,255,.14)');g.addColorStop(.6,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(8,6,28,.7)');
+  c.fillStyle=g;c.fillRect(cx-R,cy-ry,2*R,2*ry);
+  c.restore();
+}
+var RINGS=[
+ {id:'D',name:'D Ring',a:1.11,b:1.24,col:'#d9c9a8',al:.18,pa:.3},
+ {id:'C',name:'C Ring',a:1.24,b:1.53,col:'#a99a82',al:.35,pa:.45},
+ {id:'B',name:'B Ring',a:1.53,b:1.95,col:'#f1e3c3',al:.9,pa:.9},
+ {id:'CD',name:'Cassini Division',a:1.95,b:2.03,col:'#2a2a44',al:.1,pa:0},
+ {id:'A',name:'A Ring',a:2.03,b:2.27,col:'#d9c7a0',al:.65,pa:.7},
+ {id:'F',name:'F Ring',a:2.31,b:2.35,col:'#efe3c9',al:.8,pa:.9},
+ {id:'G',name:'G Ring',a:2.75,b:2.88,col:'#c9bda6',al:.25,pa:.35},
+ {id:'E',name:'E Ring',a:2.99,b:7.97,col:'#9fd9e8',al:.09,pa:.25}
+];
+function ringById(id){for(var i=0;i<RINGS.length;i++)if(RINGS[i].id===id)return RINGS[i];}
+var HIDE_E=false;
+var PARTS=[];
+[['D',160],['C',500],['B',1500],['A',1000],['F',140],['G',140],['E',700]].forEach(function(p){
+  var g=ringById(p[0]);
+  for(var i=0;i<p[1];i++){
+    var r=p[0]==='E'?clamp(3.6+(Math.random()+Math.random()-1)*3,2.99,7.97):g.a+Math.random()*(g.b-g.a);
+    PARTS.push({id:p[0],r:r,th:Math.random()*TAU,s:Math.random()<.08?2:1,g:g});
+  }
+});
+function ringBand(c,w,hh,cx,cy,R,s,front,sel){
+  c.save();c.beginPath();
+  if(front)c.rect(0,cy,w,hh-cy);else c.rect(0,0,w,cy);
+  c.clip();
+  RINGS.forEach(function(g){
+    if(HIDE_E&&g.id==='E')return;
+    c.beginPath();
+    c.ellipse(cx,cy,g.b*R,g.b*R*s,0,0,TAU);
+    c.ellipse(cx,cy,g.a*R,g.a*R*s,0,0,TAU);
+    c.fillStyle=g.col;c.globalAlpha=g.al;c.fill('evenodd');
+    if(sel===g.id){c.globalAlpha=.35;c.fillStyle='#ffe28a';c.fill('evenodd');c.globalAlpha=1;c.strokeStyle='#ffe28a';c.lineWidth=1.5;
+      c.beginPath();c.ellipse(cx,cy,g.b*R,g.b*R*s,0,0,TAU);c.stroke();c.beginPath();c.ellipse(cx,cy,g.a*R,g.a*R*s,0,0,TAU);c.stroke();}
+  });
+  c.globalAlpha=1;c.restore();
+}
+function ringParts(c,cx,cy,R,s,t,front,sel){
+  var sz=Math.max(1,R/60);
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];if(HIDE_E&&p.id==='E')continue;var th=p.th+t*.5*MO*Math.pow(p.r,-1.5)*2;
+    var sn=Math.sin(th);if((sn>0)!==front)continue;
+    c.globalAlpha=sel===p.id?1:p.g.pa;
+    c.fillStyle=sel===p.id?'#fff4c8':p.g.col;
+    c.fillRect(cx+Math.cos(th)*p.r*R,cy+sn*p.r*R*s,sz*p.s,sz*p.s);
+  }
+  c.globalAlpha=1;
+}
+function ringSystem(c,w,hh,cx,cy,R,tilt,t,o){
+  o=o||{};HIDE_E=!!o.noE;var s=Math.sin(tilt);
+  ringBand(c,w,hh,cx,cy,R,s,false,o.sel);ringParts(c,cx,cy,R,s,t,false,o.sel);
+  planet(c,cx,cy,R,{ob:o.ob==null?.09:o.ob,t:t});
+  ringBand(c,w,hh,cx,cy,R,s,true,o.sel);ringParts(c,cx,cy,R,s,t,true,o.sel);
+  if(s<.06){c.strokeStyle='rgba(240,225,190,.8)';c.lineWidth=2;c.beginPath();c.moveTo(cx-2.3*R,cy);c.lineTo(cx+2.3*R,cy);c.stroke();}
+}
+function label(c,txt,x,y,col,size,align){
+  c.font=(size||14)+'px '+getComputedStyle(document.body).fontFamily;c.fillStyle=col||'#f3f4ff';c.textAlign=align||'left';c.textBaseline='middle';c.fillText(txt,x,y);
+}
+function ball(c,x,y,r,kind){
+  c.save();
+  var g=c.createRadialGradient(x-r*.35,y-r*.35,r*.1,x,y,r);
+  if(kind==='earth'){g.addColorStop(0,'#7fd0ff');g.addColorStop(1,'#1d4f9a');}
+  else{g.addColorStop(0,'#f6e2b0');g.addColorStop(1,'#a5782f');}
+  c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
+  if(kind==='earth'){c.fillStyle='rgba(70,170,90,.8)';c.beginPath();c.ellipse(x-r*.25,y-r*.1,r*.35,r*.25,.5,0,TAU);c.fill();c.beginPath();c.ellipse(x+r*.35,y+r*.3,r*.2,r*.28,0,0,TAU);c.fill();}
+  else{c.strokeStyle='rgba(245,230,190,.85)';c.lineWidth=2;c.beginPath();c.ellipse(x,y,r*1.5,r*.35,-.25,0,TAU);c.stroke();}
+  c.restore();
+}
+
+/* ---------- Lab 0: start ---------- */
+function Lab0(api){
+  return {modes:[],setMode:function(){api.info('Welcome aboard','Saturn is a gas giant with rings made of ice. You will visit six stops.');},
+  draw:function(c,w,hh,t){var R=Math.min(hh*.2,w*.13);ringSystem(c,w,hh,w*.5,hh*.5,R,0.42,t,{noE:true});}};
+}
+
+/* ---------- Lab 1: Meet Saturn ---------- */
+function Lab1(api){
+  var mode='spin',k=.12,tw=null,sl=null,rd=null,objs=[],on9=false,on21=false,p9=0,p21=0,dropped={earth:false,saturn:false};
+  var modes=[['spin','Spin it'],['float','Float test'],['size','Size check']];
+  function upd(){
+    var hrs=24-16*k;rd.textContent='One day: '+hrs.toFixed(1)+' hours';
+    if(k>.6)api.discover('spin');
+  }
+  function setMode(m){
+    mode=m;var c=api.controls;c.innerHTML='';
+    if(m==='spin'){
+      rd=h('output',{class:'rd'});
+      sl=h('input',{type:'range',min:0,max:100,value:Math.round(k*100),'aria-label':'Spin speed',oninput:function(e){k=e.target.value/100;tw=null;upd();}});
+      c.append(h('label',{class:'ctl'},'Spin speed ',sl),rd,h('button',{class:'btn sm',onclick:function(){tw={from:k,to:.84,t:0};}},'Set to Saturn'));
+      upd();api.info('Spin it','Slide the spin faster. Watch the shape. A fast spin makes a planet bulge in the middle. That shape is called an oblate spheroid. Saturn spins once every 10.6 hours.');
+    }else if(m==='float'){
+      c.append(h('button',{class:'btn sm',onclick:function(){objs.push({k:'earth',x:0,y:-1,vy:0,w:false});dropped.earth=true;chk();}},'Drop Earth'),
+               h('button',{class:'btn sm',onclick:function(){objs.push({k:'saturn',x:0,y:-1,vy:0,w:false});dropped.saturn=true;chk();}},'Drop Saturn'),
+               h('button',{class:'btn sm ghost',onclick:function(){objs=[];}},'Clear'));
+      api.info('Float test',`Density tells how much stuff is packed in a space. Water is 1.0. Earth is 5.5, so it sinks. Saturn is only 0.69. Drop both and see.`);
+    }else{
+      c.append(h('button',{class:'btn sm',onclick:function(){on9=!on9;if(on9)chk2();}},'Line up Earths across Saturn'),
+               h('button',{class:'btn sm',onclick:function(){on21=!on21;if(on21)chk2();}},'Line up Earths across the rings'));
+      api.info('Size check','Saturn is the second largest planet. About 9 Earths fit across its middle. Its rings are even wider: more than 21 Earths side by side.');
+    }
+  }
+  function chk(){if(dropped.earth&&dropped.saturn)api.discover('float');}
+  function chk2(){if(on9&&on21)api.discover('size');}
+  function draw(c,w,hh,t,dt){
+    if(tw){tw.t+=dt/1.1;var e=clamp(tw.t,0,1);k=lerp(tw.from,tw.to,e*e*(3-2*e));if(sl)sl.value=Math.round(k*100);upd();if(tw.t>=1)tw=null;}
+    var R,cx=w/2,cy=hh/2;
+    if(mode==='spin'){
+      R=Math.min(hh*.33,w*.22);var ob=.22*k;
+      c.setLineDash([5,6]);c.strokeStyle='rgba(255,255,255,.35)';c.beginPath();c.arc(cx,cy,R,0,TAU);c.stroke();c.setLineDash([]);
+      planet(c,cx,cy,R,{ob:ob,t:t,speeds:BANDS.map(function(){return 40+k*500;})});
+      label(c,'Dashed circle = a perfect ball',cx,hh-18,'#b6bde8',14,'center');
+    }else if(mode==='float'){
+      var x0=w*.16,x1=w*.84,wy=hh*.42,bot=hh*.92,r=Math.min(34,hh*.075);
+      c.fillStyle='rgba(60,140,210,.45)';c.fillRect(x0,wy,x1-x0,bot-wy);
+      c.strokeStyle='#8fe3f0';c.lineWidth=2;c.beginPath();
+      for(var x=x0;x<=x1;x+=6){var yy=wy+Math.sin(x*.05+t*2*MO)*2.5;if(x===x0)c.moveTo(x,yy);else c.lineTo(x,yy);}c.stroke();
+      c.strokeStyle='#cfe8ff';c.lineWidth=3;c.beginPath();c.moveTo(x0,hh*.2);c.lineTo(x0,bot);c.lineTo(x1,bot);c.lineTo(x1,hh*.2);c.stroke();
+      label(c,'Water  1.0',x0+10,wy+18,'#e8f6ff',15);
+      label(c,'Earth  5.5 g/cm³',x0+10,hh*.08,'#7fd0ff',15);label(c,'Saturn  0.69 g/cm³',x0+10,hh*.08+22,'#f2d08e',15);
+      objs.forEach(function(o){
+        if(o.y<0){o.y=hh*.1;o.x=o.k==='earth'?w*.35:w*.65;}
+        if(!o.w){o.vy+=1500*dt;o.y+=o.vy*dt;if(o.y>=wy){o.w=true;o.vy*=.35;}}
+        else if(o.k==='earth'){o.vy+=700*dt;o.vy*=.985;o.y+=o.vy*dt;if(o.y>bot-r){o.y=bot-r;o.vy*=-.15;}}
+        else{var eq=wy+r*(2*.687-1);o.vy+=(60*(eq-o.y)-6*o.vy)*dt;o.y+=o.vy*dt;}
+        ball(c,o.x,o.y,r,o.k);
+      });
+      if(!objs.length)label(c,'Press Drop Earth or Drop Saturn',w/2,hh*.65,'#b6bde8',16,'center');
+    }else{
+      R=Math.min(w*.17,hh*.22);var cy2=hh*.38,er=R/9.1;
+      ringSystem(c,w,hh,cx,cy2,R,.4,t,{ob:.09,noE:true});
+      if(on9)p9=Math.min(1,p9+dt*1.2);else p9=Math.max(0,p9-dt*2);
+      if(on21)p21=Math.min(1,p21+dt*.9);else p21=Math.max(0,p21-dt*2);
+      for(var i=0;i<9;i++){var ep=clamp(p9*10-i*.6,0,1);if(ep>0)ball(c,cx-R+er+i*2*er,lerp(cy2-R*1.5,cy2,ep),er,'earth');}
+      if(p9>.95)label(c,'About 9 Earths across Saturn',cx,cy2+R*1.12,'#7fd0ff',15,'center');
+      for(var j=0;j<21;j++){var ep2=clamp(p21*22-j*.8,0,1);if(ep2>0)ball(c,cx-2.27*R+er+j*2*er*(2*2.27*R-2*er)/(2*er*20)*1,lerp(hh-6,hh*.88,ep2),er,'earth');}
+      if(p21>.95)label(c,'More than 21 Earths across the rings',cx,hh*.8,'#7fd0ff',15,'center');
+    }
+  }
+  return {modes:modes,setMode:setMode,draw:draw};
+}
+
+/* ---------- Lab 2: Inside Saturn ---------- */
+function Lab2(api){
+  var mode='layers',sel=null,probe=0,going=false,crushed=false,crushedMsg=false,bits=[],clicked={},types={};
+  var modes=[['layers','Cutaway'],['probe','Send a probe'],['gas','Gas mix']];
+  var LAY=[
+    {id:'atm',name:'Upper atmosphere',r0:.9,r1:1,col:'#ecd29a',txt:`Mostly hydrogen and helium, with a little ammonia, methane and water ice. Ammonia crystals and haze give Saturn its yellow-brown color. It is very cold here: about -178°C (-288°F).`},
+    {id:'lh',name:'Liquid hydrogen',r0:.55,r1:.9,col:'#c58e4d',txt:`Deeper down, the pressure is so high that hydrogen squeezes into a liquid.`},
+    {id:'mh',name:'Liquid metallic hydrogen',r0:.2,r1:.55,col:'#7886cf',txt:`Even deeper, the pressure is huge. Hydrogen acts like a metal here. It can carry electricity.`},
+    {id:'core',name:'Core',r0:0,r1:.2,col:'#ef7a4e',txt:`A dense center of rock, ice and metal. It is very hot: about 11,700°C (21,000°F).`}
+  ];
+  var dots=[],i;
+  var order=[];for(i=0;i<100;i++)order.push(i<96?'H':i<99?'He':'X');
+  for(i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=order[i];order[i]=order[j];order[j]=tmp;}
+  for(i=0;i<100;i++)dots.push({k:order[i],gx:i%10,gy:Math.floor(i/10),p:Math.random()*TAU});
+  var NAMES={H:['Hydrogen',`Hydrogen is about 96 out of every 100 gas pieces in Saturn's air.`,'#f2d08e'],He:['Helium',`Helium is about 3 out of every 100.`,'#8fe3f0'],X:['Methane, ammonia and water vapor',`All the other gases together are less than 1 out of 100.`,'#ef7a4e']};
+  function pick(id){
+    sel=id;var L=LAY.filter(function(l){return l.id===id;})[0];
+    api.info(L.name,L.txt);clicked[id]=1;
+    if(Object.keys(clicked).length>=4)api.discover('layers');
+    setBtns();
+  }
+  var btns=[];
+  function setBtns(){btns.forEach(function(b){b.el.setAttribute('aria-pressed',String(sel===b.id));});}
+  function setMode(m){
+    mode=m;var c=api.controls;c.innerHTML='';btns=[];
+    if(m==='layers'){
+      LAY.forEach(function(l){var b=h('button',{class:'chip','aria-pressed':'false',onclick:function(){pick(l.id);}},l.name);btns.push({id:l.id,el:b});c.append(b);});
+      api.info('Cutaway','Saturn has no solid surface. It is layers of gas and liquid. Click each layer to learn about it. The picture is not to scale.');
+    }else if(m==='probe'){
+      c.append(h('button',{class:'btn sm',onclick:function(){probe=0;crushed=false;bits=[];going=true;}},'Send the probe'),
+               h('button',{class:'btn sm ghost',onclick:function(){probe=0;crushed=false;bits=[];going=false;}},'Reset'));
+      api.info('Send a probe','A spacecraft cannot go deep into Saturn. The deeper it goes, the more the pressure grows. Send one down and watch the gauges.');
+    }else{
+      api.info('Gas mix','Each dot is 1 out of 100 gas pieces in Saturn\'s air. Click a dot to find out what it is. Click one of each kind.');
+    }
+  }
+  function geom(w,hh){return {cx:w*.42,cy:hh*.5,R:Math.min(hh*.43,w*.3)};}
+  function draw(c,w,hh,t,dt){
+    var g=geom(w,hh),cx=g.cx,cy=g.cy,R=g.R;
+    if(mode==='gas'){
+      var S2=Math.min(hh,w)*.075,ox=w/2-4.5*S2,oy=hh/2-4.5*S2;
+      dots.forEach(function(d){
+        d.x=ox+d.gx*S2+Math.sin(t*MO+d.p)*3;d.y=oy+d.gy*S2+Math.cos(t*.8*MO+d.p)*3;
+        var col=NAMES[d.k][2];c.fillStyle=col;c.globalAlpha=types[d.k]&&d.k!=='H'?1:.9;
+        c.beginPath();c.arc(d.x,d.y,d.k==='H'?S2*.28:S2*.34,0,TAU);c.fill();
+        if(d.k!=='H'){c.strokeStyle='#fff';c.lineWidth=2;c.stroke();}
+      });
+      c.globalAlpha=1;
+      var ly=hh-24;label(c,'● Hydrogen',w*.12,ly,'#f2d08e',15);label(c,'● Helium',w*.4,ly,'#8fe3f0',15);label(c,'● Other gases',w*.62,ly,'#ef7a4e',15);
+      return;
+    }
+    LAY.forEach(function(l){
+      c.beginPath();c.arc(cx,cy,l.r1*R,0,TAU);c.arc(cx,cy,l.r0*R,0,TAU,true);
+      c.fillStyle=l.col;c.fill('evenodd');
+      if(l.id==='core'){c.beginPath();c.arc(cx,cy,l.r1*R,0,TAU);var cg=c.createRadialGradient(cx,cy,0,cx,cy,l.r1*R);cg.addColorStop(0,'#fff2c0');cg.addColorStop(1,l.col);c.fillStyle=cg;c.fill();}
+      c.strokeStyle='rgba(8,10,30,.7)';c.lineWidth=2;c.beginPath();c.arc(cx,cy,l.r1*R,0,TAU);c.stroke();
+      if(sel===l.id){c.strokeStyle='#fff';c.lineWidth=3+Math.sin(t*5)*1.2;c.beginPath();c.arc(cx,cy,(l.r1)*R-2,0,TAU);c.stroke();}
+    });
+    LAY.forEach(function(l){var rr=(l.r0+l.r1)/2*R;if(l.id==='core')rr=0;label(c,l.id==='core'?'Core':l.id==='atm'?'':l.name,cx+(l.id==='core'?0:0),cy-rr+(l.id==='core'?0:0),'#0d1030',13,'center');});
+    label(c,'Upper atmosphere',cx,cy-R-12,'#f3f4ff',14,'center');
+    if(mode==='probe'){
+      if(going&&!crushed){probe+=dt*.12*MO*(calm?4:1);if(probe>=.45){crushed=true;going=false;api.discover('probe');for(var q=0;q<24;q++)bits.push({x:cx,y:cy-R+probe*R,vx:(Math.random()-.5)*160,vy:(Math.random()-.5)*160,l:1});}}
+      var py=cy-R+probe*R;
+      if(!crushed){c.fillStyle='#fff';c.beginPath();c.moveTo(cx,py-12);c.lineTo(cx+7,py+6);c.lineTo(cx-7,py+6);c.closePath();c.fill();}
+      else{bits.forEach(function(b){b.x+=b.vx*dt;b.y+=b.vy*dt;b.l-=dt*.5;c.globalAlpha=Math.max(0,b.l);c.fillStyle='#fff';c.fillRect(b.x,b.y,4,4);});c.globalAlpha=1;crushedMsg=true;}
+      var gx=w*.8,gy=hh*.2,gh=hh*.55,pr=clamp(probe/.45,0,1);
+      if(crushed)label(c,'Crushed!',gx,gy+gh+44,'#ff9c8f',18,'center');
+      label(c,'Pressure',gx,gy-14,'#f3f4ff',14,'center');
+      c.strokeStyle='#8fe3f0';c.lineWidth=2;c.strokeRect(gx-14,gy,28,gh);c.fillStyle='#ff9c8f';c.fillRect(gx-12,gy+gh*(1-pr),24,gh*pr);
+      label(c,'Depth: '+(probe*100).toFixed(0)+'% in',gx,gy+gh+20,'#b6bde8',14,'center');
+    }
+  }
+  function down(x,y,w,hh){
+    var g=geom(w,hh);
+    if(mode==='gas'){
+      var best=null,bd=1e9;dots.forEach(function(d){var dd=Math.hypot(d.x-x,d.y-y);if(dd<bd){bd=dd;best=d;}});
+      if(best&&bd<24){types[best.k]=1;api.info(NAMES[best.k][0],NAMES[best.k][1]);if(types.H&&types.He&&types.X)api.discover('gas');}
+      return;
+    }
+    if(mode==='layers'){
+      var r=Math.hypot(x-g.cx,y-g.cy)/g.R;
+      for(var i=0;i<LAY.length;i++)if(r>=LAY[i].r0&&r<=LAY[i].r1){pick(LAY[i].id);return;}
+    }
+  }
+  return {modes:modes,setMode:setMode,draw:draw,down:down};
+}
+
+/* ---------- Lab 3: Weather and poles ---------- */
+function Lab3(api){
+  var mode='winds',selBand=-1,hexCount=0,hexT=0,counting=false,compare=false,cp=0,storm=0,stormOn=false;
+  var SP=[60,150,400,800,1000,800,400,150,60];
+  var modes=[['winds','Wind bands'],['north','North pole'],['south','South pole'],['storm','Great White Spot']];
+  function setMode(m){
+    mode=m;var c=api.controls;c.innerHTML='';
+    if(m==='winds'){api.info('Wind bands','Saturn has some of the fastest winds in the solar system. Click a band to see its speed. Find the fastest one.');}
+    else if(m==='north'){c.append(h('button',{class:'btn sm',onclick:function(){counting=true;hexT=0;hexCount=0;}},'Count the sides'));
+      api.info('North pole','A six-sided shape sits over the north pole. It is a jet stream. Little clouds race around it at about 200 miles per hour. The shape stays in place. It has been there for at least 20 years.');}
+    else if(m==='south'){c.append(h('button',{class:'btn sm',onclick:function(){compare=!compare;if(compare)api.discover('south');}},'Compare to the United States'));
+      api.info('South pole','A giant storm sits at the south pole. It has an eye and an eye wall, like a hurricane on Earth. It is about 5,000 miles across. It is the only storm like this found on another planet.');}
+    else{c.append(h('button',{class:'btn sm',onclick:function(){stormOn=true;storm=0;}},'Start a storm'),h('button',{class:'btn sm ghost',onclick:function(){stormOn=false;storm=0;}},'Reset'));
+      api.info('Great White Spot','About once every Saturn year, a huge white storm breaks out. A Saturn year is 29.5 Earth years. The storm can wrap all the way around the planet.');}
+  }
+  function bandAt(y,cy,R){var ry=R*.91,yy=cy-ry,acc=0;for(var i=0;i<BANDS.length;i++){var bh=ry*2*BANDS[i][0];if(y>=yy+acc&&y<yy+acc+bh)return i;acc+=bh;}return -1;}
+  function draw(c,w,hh,t,dt){
+    var cx=w/2,cy=hh/2,R=Math.min(hh*.4,w*.28);
+    if(mode==='winds'){
+      planet(c,cx,cy,R,{t:t,speeds:SP,sel:selBand,ob:.09});
+      if(selBand>=0)label(c,'About '+SP[selBand]+' mph',cx+R+16,cy,selBand===4?'#7be3a7':'#f2d08e',18);
+      else label(c,'Click a band',cx+R+16,cy,'#b6bde8',16);
+    }else if(mode==='north'){
+      var Rp=Math.min(hh*.42,w*.3);
+      var g=c.createRadialGradient(cx,cy,0,cx,cy,Rp);g.addColorStop(0,'#e4c88f');g.addColorStop(1,'#b98f55');c.fillStyle=g;c.beginPath();c.arc(cx,cy,Rp,0,TAU);c.fill();
+      for(var i=0;i<26;i++){var a=i/26*TAU+t*.12*MO,rr=Rp*(.85+.1*Math.sin(i*3));c.fillStyle='rgba(255,248,225,.3)';c.beginPath();c.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,5,0,TAU);c.fill();}
+      var Rh=Rp*.58,pts=[];for(i=0;i<6;i++){var aa=i*TAU/6+TAU/12;pts.push([cx+Math.cos(aa)*Rh,cy+Math.sin(aa)*Rh]);}
+      c.strokeStyle='#fff6d6';c.lineWidth=4;c.beginPath();pts.forEach(function(p,k){if(k)c.lineTo(p[0],p[1]);else c.moveTo(p[0],p[1]);});c.closePath();c.stroke();
+      for(i=0;i<10;i++){var u=((i/10+t*.12*MO)%1)*6,sg=Math.floor(u),fr=u-sg,p1=pts[sg%6],p2=pts[(sg+1)%6];
+        c.fillStyle='#fff';c.beginPath();c.arc(lerp(p1[0],p2[0],fr),lerp(p1[1],p2[1],fr),4,0,TAU);c.fill();}
+      c.fillStyle='rgba(120,70,20,.5)';c.beginPath();c.arc(cx,cy,Rh*.22,0,TAU);c.fill();
+      label(c,'Hexagon stays still',cx,cy-Rp-12,'#fff6d6',15,'center');label(c,'Clouds race around it',cx,cy+Rp+14,'#b6bde8',14,'center');
+      if(counting){hexT+=dt;hexCount=Math.min(6,Math.floor(hexT/.6)+1);for(i=0;i<hexCount;i++){c.fillStyle='#7be3a7';c.beginPath();c.arc(pts[i][0],pts[i][1],14,0,TAU);c.fill();label(c,String(i+1),pts[i][0],pts[i][1],'#062014',16,'center');}
+        if(hexCount>=6&&hexT>4){counting=false;api.discover('hex');}}
+    }else if(mode==='south'){
+      var Rs=Math.min(hh*.4,w*.26),scx=w*.4;
+      var bg=c.createRadialGradient(scx,cy,0,scx,cy,Rs);bg.addColorStop(0,'#2a1d12');bg.addColorStop(.25,'#8a6a40');bg.addColorStop(1,'#d3b074');c.fillStyle=bg;c.beginPath();c.arc(scx,cy,Rs,0,TAU);c.fill();
+      c.lineWidth=7;for(var a=0;a<5;a++){c.strokeStyle='rgba(255,248,225,.5)';c.beginPath();for(var r=.3;r<=1;r+=.04){var an=a*TAU/5+t*.9*MO+r*3.2,px=scx+Math.cos(an)*r*Rs*.97,py=cy+Math.sin(an)*r*Rs*.97;if(r<.31)c.moveTo(px,py);else c.lineTo(px,py);}c.stroke();}
+      c.strokeStyle='#fff';c.lineWidth=4;c.beginPath();c.arc(scx,cy,Rs*.27,0,TAU);c.stroke();
+      label(c,'Eye',scx,cy,'#f2d08e',16,'center');label(c,'Eye wall',scx+Rs*.27+8,cy-Rs*.27-6,'#fff',14);
+      if(compare)cp=Math.min(1,cp+dt*1.5);else cp=Math.max(0,cp-dt*2);
+      var bx=scx+Rs+30,bw=(w-bx-24);
+      if(cp>0){var usw=Math.min(bw,Rs*2*.56);c.globalAlpha=cp;c.fillStyle='#8fe3f0';c.fillRect(bx,cy+Rs*.5,usw,14);label(c,'United States: about 2,800 miles',bx,cy+Rs*.5+30,'#8fe3f0',14);
+        c.fillStyle='#f2d08e';c.fillRect(bx,cy-Rs*.2,Math.min(bw,Rs*2),14);label(c,'The storm: about 5,000 miles',bx,cy-Rs*.2-16,'#f2d08e',14);c.globalAlpha=1;}
+    }else{
+      if(stormOn)storm=Math.min(1,storm+dt*.18*MO*(calm?3:1));
+      planet(c,cx,cy,R,{t:t,ob:.09});
+      c.save();c.beginPath();c.ellipse(cx,cy,R,R*.91,0,0,TAU);c.clip();
+      var y0=cy-R*.3;
+      if(storm>0){var rx=R*(.1+1.6*storm),ry=R*(.07+.07*storm);c.fillStyle='rgba(255,255,255,.85)';c.beginPath();c.ellipse(cx-R*.5+storm*R*.3,y0,rx,ry,0,0,TAU);c.fill();
+        if(storm>.6){c.globalAlpha=(storm-.6)/.4;c.fillStyle='rgba(255,255,255,.85)';c.fillRect(cx-R,y0-ry,2*R,2*ry);c.globalAlpha=1;}}
+      c.restore();
+      var msg=!stormOn&&storm===0?'Press Start a storm':storm<.3?'A white storm begins':storm<.9?'It grows and stretches east':'It wraps all the way around Saturn!';
+      label(c,msg,cx,hh-20,'#f2d08e',17,'center');
+      if(storm>=1)api.discover('storm');
+    }
+  }
+  function down(x,y,w,hh){
+    if(mode==='winds'){var R=Math.min(hh*.4,w*.28),b=bandAt(y,hh/2,R);if(b>=0&&Math.abs(x-w/2)<R){selBand=b;api.info('Wind band',`This band blows at about ${SP[b]} miles per hour. Saturn's fastest winds are near the equator.`);if(b===4)api.discover('winds');}}
+  }
+  return {modes:modes,setMode:setMode,draw:draw,down:down};
+}
+
+/* ---------- Lab 4: Rings ---------- */
+function Lab4(api){
+  var mode='map',sel=null,tiltDeg=28,zoom=1,race={on:false,a:0,b:0,t:0},zp=[],sh={},chips=[],tiltEl=null,zoomEl=null,ed=0;
+  var modes=[['map','Ring map'],['race','Orbit race'],['zoom','Zoom in'],['shepherd','Shepherd moons']];
+  var INFO={
+    D:[`D Ring`,`The innermost ring. It is very faint. It starts about 67,000 km from Saturn's center.`],
+    C:[`C Ring`,`Also called the "Crepe Ring." It is dimmer than the A and B rings.`],
+    B:[`B Ring`,`The brightest and most see-through-proof (opaque) ring. It is packed with ice. Strange dark "spokes" come and go here.`],
+    CD:[`Cassini Division`,`A dark gap between the B ring and the A ring. It is about 4,700 km wide.`],
+    A:[`A Ring`,`A bright ring on the outside of the Cassini Division. It has a thin gap called the Encke Gap.`],
+    F:[`F Ring`,`A narrow, braided ring. Two shepherd moons, Prometheus and Pandora, tug on it.`],
+    G:[`G Ring`,`A very thin, faint ring.`],
+    E:[`E Ring`,`The outermost ring. It is fed by ice from the geysers on Enceladus. Zoom out to find Enceladus.`]
+  };
+  function sel_(id){
+    sel=id;chips.forEach(function(b){b.el.setAttribute('aria-pressed',String(b.id===id));});
+    if(id){api.info(INFO[id][0],INFO[id][1]);S.disc.r_clicked=S.disc.r_clicked||{};S.disc.r_clicked[id]=1;if(Object.keys(S.disc.r_clicked).length>=3)api.discover('ringclick');}
+  }
+  function setMode(m){
+    mode=m;var c=api.controls;c.innerHTML='';chips=[];
+    if(m==='map'){
+      tiltEl=h('input',{type:'range',min:2,max:65,value:tiltDeg,'aria-label':'Tilt',oninput:function(e){tiltDeg=+e.target.value;if(tiltDeg<=6)api.discover('edge');}});
+      zoomEl=h('input',{type:'range',min:36,max:100,value:Math.round(zoom*100),'aria-label':'Zoom',oninput:function(e){zoom=e.target.value/100;if(zoom<.5)api.discover('far');}});
+      c.append(h('label',{class:'ctl'},'Tilt ',tiltEl),h('label',{class:'ctl'},'Zoom out ',zoomEl));
+      var row=h('div',{style:'display:flex;flex-wrap:wrap;gap:6px;flex-basis:100%'});
+      RINGS.forEach(function(g){var b=h('button',{class:'chip','aria-pressed':'false',onclick:function(){sel_(g.id);}},g.name);chips.push({id:g.id,el:b});row.append(b);});
+      c.append(row);
+      api.info('Ring map',`Click a ring on the picture or press a button. Slide the tilt all the way down to see the rings edge-on. Slide the zoom out to find the E ring. The rings are about 10 meters (30 feet) thick in many places. That is very thin!`);
+    }else if(m==='race'){
+      c.append(h('button',{class:'btn sm',onclick:function(){race={on:true,a:0,b:0,t:0};}},'Start the race'));
+      api.info('Orbit race','Two ice chunks circle Saturn. One is in the C ring (close). One is in the A ring (far). Who laps more? Closer chunks feel stronger gravity, so they orbit faster. Ring chunks zoom around at 20,000 to 40,000 miles per hour.');
+    }else if(m==='zoom'){
+      zp=[];for(var i=0;i<70;i++)zp.push({x:Math.random(),y:Math.random(),s:Math.random()<.08?3:Math.random()<.3?2:1,vx:(Math.random()-.5)*.02,vy:(Math.random()-.5)*.01,a:Math.random()*TAU});
+      api.info('Zoom in','Fly into the rings. Every piece is an ice chunk. Some are fine like snow. Some are as big as a house. Click a chunk.');
+    }else{
+      api.info('Shepherd moons','Prometheus and Pandora are small moons on each side of the F ring. Their gravity herds the ice and bends the ring. Watch the ring bend when a moon passes. Click a moon.');
+    }
+  }
+  function draw(c,w,hh,t,dt){
+    var cx=w/2,cy=hh/2;
+    if(mode==='map'){
+      var base=(w/2*.9)/(2.4),R=base*zoom,tilt=tiltDeg*Math.PI/180;
+      ringSystem(c,w,hh,cx,cy,R,tilt,t,{sel:sel,ob:.09,noE:zoom>.85&&sel!=='E'});
+      var s=Math.sin(tilt);
+      if(zoom<.7){var ea=t*.5*MO*Math.pow(3.95,-1.5)*2;var ex=cx+Math.cos(ea)*3.95*R,ey=cy+Math.sin(ea)*3.95*R*s;c.fillStyle='#fff';c.beginPath();c.arc(ex,ey,4,0,TAU);c.fill();label(c,'Enceladus',ex+8,ey-8,'#8fe3f0',14);}
+      if(tiltDeg<=6)label(c,'Edge-on: the rings almost disappear!',cx,hh-20,'#f2d08e',17,'center');
+    }else if(mode==='race'){
+      var R2=Math.min(hh*.14,w*.1);
+      planet(c,cx,cy,R2,{t:t,ob:0});
+      var rA=1.3,rB=2.2,sA=R2*rA*1.9,sB=R2*rB*1.9;
+      c.strokeStyle='rgba(255,255,255,.2)';c.lineWidth=1;c.beginPath();c.arc(cx,cy,sA,0,TAU);c.stroke();c.beginPath();c.arc(cx,cy,sB,0,TAU);c.stroke();
+      c.strokeStyle='rgba(255,226,138,.7)';c.beginPath();c.moveTo(cx+sA-8,cy);c.lineTo(cx+sB+8,cy);c.stroke();
+      if(race.on){race.t+=dt;race.a+=dt*2.4*Math.pow(rA,-1.5)*1.1*MO*(calm?3:1);race.b+=dt*2.4*Math.pow(rB,-1.5)*1.1*MO*(calm?3:1);if(race.b/TAU>=1)api.discover('race');}
+      var aa=race.a,ab=race.b;
+      c.fillStyle='#a99a82';c.beginPath();c.arc(cx+Math.cos(aa)*sA,cy+Math.sin(aa)*sA,7,0,TAU);c.fill();
+      c.fillStyle='#fff';c.beginPath();c.arc(cx+Math.cos(ab)*sB,cy+Math.sin(ab)*sB,7,0,TAU);c.fill();
+      label(c,'Inner chunk (C ring): '+Math.floor(aa/TAU)+' laps',16,hh-44,'#d9c9a8',16);
+      label(c,'Outer chunk (A ring): '+Math.floor(ab/TAU)+' laps',16,hh-20,'#fff',16);
+    }else if(mode==='zoom'){
+      c.fillStyle='rgba(30,40,90,.4)';c.fillRect(0,0,w,hh);
+      zp.forEach(function(p){
+        p.x=(p.x+p.vx*dt*MO+1)%1;p.y=(p.y+p.vy*dt*MO+1)%1;p.a+=dt*.3*MO;
+        var r=p.s===3?hh*.065:p.s===2?hh*.03:hh*.01,x=p.x*w,y=p.y*hh;
+        c.save();c.translate(x,y);c.rotate(p.a);c.fillStyle=p.s===3?'#e8f1ff':p.s===2?'#cfd9ec':'#fff';c.beginPath();
+        for(var k=0;k<7;k++){var an=k/7*TAU,rr=r*(.8+.25*Math.sin(k*2.3+p.x*9));k?c.lineTo(Math.cos(an)*rr,Math.sin(an)*rr):c.moveTo(Math.cos(an)*rr,Math.sin(an)*rr);}
+        c.closePath();c.fill();c.restore();
+      });
+      label(c,'Click a chunk',16,hh-18,'#b6bde8',15);
+    }else{
+      var y0=hh*.5;
+      for(var st=0;st<3;st++){c.fillStyle='rgba(240,225,190,.85)';
+        for(var i=0;i<90;i++){var x=i/90*w,bump=0;
+          [['pro',-1,.26,70],['pan',1,.62,-45]].forEach(function(m){var mx=((m[2]*w+t*m[3]*MO*(calm?.5:1))%w+w)%w,d=Math.min(Math.abs(x-mx),w-Math.abs(x-mx));bump+=m[1]*-1*Math.exp(-d*d/(2*60*60))*26;});
+          var yy=y0+(st-1)*7+bump*(.6+.2*st)+Math.sin(x*.05+st*2+t*.6*MO)*3;c.fillRect(x,yy,2.2,2.2);}}
+      sh.pro=((.26*w+t*70*MO*(calm?.5:1))%w+w)%w;sh.pan=((.62*w+t*-45*MO*(calm?.5:1))%w+w)%w;
+      c.fillStyle='#d8c9b0';c.beginPath();c.arc(sh.pro,y0+54,11,0,TAU);c.fill();label(c,'Prometheus',sh.pro,y0+78,'#f3f4ff',14,'center');
+      c.fillStyle='#bfb09a';c.beginPath();c.arc(sh.pan,y0-54,9,0,TAU);c.fill();label(c,'Pandora',sh.pan,y0-78,'#f3f4ff',14,'center');
+      label(c,'F ring',16,y0-6,'#efe3c9',15);label(c,'Toward Saturn ↓',w-16,hh-16,'#b6bde8',13,'right');
+    }
+  }
+  function down(x,y,w,hh){
+    if(mode==='map'){
+      var base=(w/2*.9)/2.4,R=base*zoom,s=Math.sin(tiltDeg*Math.PI/180),dx=x-w/2,dy=(y-hh/2)/Math.max(s,.08),r=Math.hypot(dx,dy)/R;
+      var best=null;RINGS.forEach(function(g){if(r>=g.a-.03&&r<=g.b+.03)best=g.id;});
+      if(best)sel_(best);
+    }else if(mode==='zoom'){
+      var nb=null,bd=1e9;zp.forEach(function(p){var d=Math.hypot(p.x*w-x,p.y*hh-y);if(d<bd){bd=d;nb=p;}});
+      if(nb&&bd<30){api.info(nb.s===3?'A house-size chunk':nb.s===2?'An ice ball':'A snow-size grain',nb.s===3?'Big chunks are as large as houses.':nb.s===2?'Medium chunks are like ice balls or boulders.':'The tiny pieces are like fine, powdery snow. They are made of water ice.');api.discover('zoom');}
+    }else if(mode==='shepherd'){
+      var y0=hh*.5;
+      if(Math.hypot(x-sh.pro,y-(y0+54))<26){api.info('Prometheus','Prometheus orbits just inside the F ring. Its gravity tugs the ring toward Saturn.');api.discover('shep');}
+      if(Math.hypot(x-sh.pan,y-(y0-54))<26){api.info('Pandora','Pandora orbits just outside the F ring. Its gravity tugs the ring outward.');api.discover('shep');}
+    }
+  }
+  return {modes:modes,setMode:setMode,draw:draw,down:down};
+}
+
+/* ---------- Lab 5: Moons ---------- */
+function Lab5(api){
+  var MOONS=[
+    {id:'mimas',name:'Mimas',r:48,rad:4,col:'#bfc3cc',txt:`Mimas has a huge impact crater. It looks like the Death Star from Star Wars.`},
+    {id:'enceladus',name:'Enceladus',r:68,rad:5,col:'#ffffff',txt:`Enceladus is only about 500 km wide. Geysers of water shoot out of cracks called tiger stripes at its south pole. The ice feeds Saturn's E ring. A hidden ocean may lie under the ice.`},
+    {id:'titan',name:'Titan',r:118,rad:9,col:'#e8a04a',txt:`Titan is Saturn's largest moon. It is the only moon with a thick atmosphere. It has rivers, lakes and seas of liquid methane. The Huygens probe landed here.`},
+    {id:'hyperion',name:'Hyperion',r:150,rad:5,col:'#c9b08a',txt:`Hyperion has a sponge-like look. It is shaped like a potato and tumbles in a chaotic spin.`},
+    {id:'iapetus',name:'Iapetus',r:190,rad:6,col:'#d9d6cf',txt:`Iapetus has two tones. One side is very dark. The other side is bright.`},
+    {id:'phoebe',name:'Phoebe',r:232,rad:4,col:'#6f6a66',txt:`Phoebe is a dark, rocky moon. Scientists think it is a captured object from the Kuiper Belt. It did not form with Saturn.`}
+  ];
+  var sel=null,plumes=[],btns=[],ph=[],i;
+  for(i=0;i<18;i++)ph.push({x:Math.random()*2-1,y:Math.random()*2-1,r:.06+Math.random()*.12});
+  function pick(id){
+    sel=id;var m=MOONS.filter(function(x){return x.id===id;})[0];api.info(m.name,m.txt);api.discover('moon-'+id);
+    btns.forEach(function(b){b.el.setAttribute('aria-pressed',String(b.id===id));});
+  }
+  function setMode(){
+    var c=api.controls;c.innerHTML='';btns=[];
+    MOONS.forEach(function(m){var b=h('button',{class:'chip','aria-pressed':'false',onclick:function(){pick(m.id);}},m.name);btns.push({id:m.id,el:b});c.append(b);});
+    api.info('Moon orbits','Saturn has more than 270 known moons. That is the most of any planet. Click a moon in the picture or press a button. The orbit sizes are not to scale.');
+  }
+  function orbitLayout(w,hh){return sel?{cx:w*.24,cy:hh*.5,sc:Math.min(w*.22/240,hh*.44/240)}:{cx:w*.5,cy:hh*.5,sc:Math.min(w*.46/240,hh*.46/240)};}
+  function pos(m,t,L){var an=t*.7*MO*Math.pow(48/m.r,1.5)+m.r;return [L.cx+Math.cos(an)*m.r*L.sc,L.cy+Math.sin(an)*m.r*L.sc];}
+  function art(c,id,cx,cy,r,t,dt){
+    c.save();
+    if(id==='enceladus'){
+      for(var e=0;e<3;e++)plumes.push({x:cx+(Math.random()-.5)*r*.5,y:cy+r*.92,vx:(Math.random()-.5)*60,vy:60+Math.random()*120,l:1});
+      plumes=plumes.filter(function(p){return p.l>0;});
+      plumes.forEach(function(p){p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt*.55;c.globalAlpha=Math.max(0,p.l);c.fillStyle='#dff6ff';c.fillRect(p.x,p.y,3,3);});
+      c.globalAlpha=1;
+    }
+    c.beginPath();c.arc(cx,cy,r,0,TAU);c.clip();
+    var g;
+    if(id==='titan'){g=c.createRadialGradient(cx-r*.3,cy-r*.3,r*.1,cx,cy,r);g.addColorStop(0,'#f6c37a');g.addColorStop(1,'#a8591f');c.fillStyle=g;c.fillRect(cx-r,cy-r,2*r,2*r);
+      c.fillStyle='rgba(20,15,10,.55)';c.beginPath();c.ellipse(cx+r*.2,cy+r*.45,r*.28,r*.1,0,0,TAU);c.fill();c.beginPath();c.ellipse(cx-r*.35,cy+r*.2,r*.15,r*.06,0,0,TAU);c.fill();
+      c.strokeStyle='rgba(120,200,255,.7)';c.lineWidth=2;for(var k=0;k<14;k++){var rx=cx-r+((k*.143+0.05)*2*r),ry=cy-r*.1+((t*60*MO+k*37)%(r*.8));c.beginPath();c.moveTo(rx,ry);c.lineTo(rx,ry+8);c.stroke();}
+      c.fillStyle='rgba(230,150,60,.18)';c.fillRect(cx-r,cy-r,2*r,2*r);}
+    else if(id==='enceladus'){g=c.createRadialGradient(cx-r*.3,cy-r*.3,r*.1,cx,cy,r);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#b8d6e6');c.fillStyle=g;c.fillRect(cx-r,cy-r,2*r,2*r);
+      c.strokeStyle='#4aa6d6';c.lineWidth=3;for(k=-2;k<=2;k++){c.beginPath();c.moveTo(cx+k*r*.18-r*.1,cy+r*.55);c.lineTo(cx+k*r*.2,cy+r*1.05);c.stroke();}}
+    else if(id==='mimas'){g=c.createRadialGradient(cx-r*.3,cy-r*.3,r*.1,cx,cy,r);g.addColorStop(0,'#d6d9e0');g.addColorStop(1,'#757a86');c.fillStyle=g;c.fillRect(cx-r,cy-r,2*r,2*r);
+      c.fillStyle='#5d626e';c.beginPath();c.arc(cx-r*.3,cy-r*.2,r*.38,0,TAU);c.fill();c.strokeStyle='#e8eaf0';c.lineWidth=3;c.stroke();c.fillStyle='#9aa0ac';c.beginPath();c.arc(cx-r*.3,cy-r*.2,r*.07,0,TAU);c.fill();
+      c.fillStyle='rgba(60,64,74,.5)';[[.3,.3,.1],[.5,-.3,.07],[.1,.55,.08]].forEach(function(q){c.beginPath();c.arc(cx+q[0]*r,cy+q[1]*r,q[2]*r,0,TAU);c.fill();});}
+    else if(id==='iapetus'){var bx=cx+Math.sin(t*.5*MO)*r*.9;c.fillStyle='#e9e6df';c.fillRect(cx-r,cy-r,2*r,2*r);g=c.createLinearGradient(bx-r*.4,0,bx+r*.1,0);g.addColorStop(0,'#2a2420');g.addColorStop(1,'rgba(42,36,32,0)');c.fillStyle='#2a2420';c.fillRect(cx-r,cy-r,bx-(cx-r)-r*.4,2*r);c.fillStyle=g;c.fillRect(bx-r*.4,cy-r,r*.5,2*r);
+      g=c.createRadialGradient(cx-r*.3,cy-r*.3,r*.2,cx,cy,r);g.addColorStop(0,'rgba(255,255,255,.15)');g.addColorStop(1,'rgba(0,0,0,.45)');c.fillStyle=g;c.fillRect(cx-r,cy-r,2*r,2*r);}
+    else if(id==='hyperion'||id==='phoebe'){
+      c.restore();c.save();c.translate(cx,cy);c.rotate(t*.7*MO+Math.sin(t*1.3*MO));
+      var sx=id==='hyperion'?1.25:1,sy=id==='hyperion'?.8:1;c.beginPath();c.ellipse(0,0,r*sx,r*sy,0,0,TAU);c.clip();
+      g=c.createRadialGradient(-r*.3,-r*.3,r*.1,0,0,r*1.2);g.addColorStop(0,id==='hyperion'?'#e0cba3':'#8a8480');g.addColorStop(1,id==='hyperion'?'#7a6648':'#3a3633');c.fillStyle=g;c.fillRect(-r*1.3,-r,2.6*r,2*r);
+      c.fillStyle='rgba(30,22,14,.55)';ph.forEach(function(p){c.beginPath();c.arc(p.x*r,p.y*r*.8,p.r*r,0,TAU);c.fill();c.strokeStyle='rgba(255,240,210,.2)';c.stroke();});}
+    c.restore();
+  }
+  function draw(c,w,hh,t,dt){
+    var L=orbitLayout(w,hh);
+    c.strokeStyle='rgba(255,255,255,.12)';c.lineWidth=1;MOONS.forEach(function(m){c.beginPath();c.arc(L.cx,L.cy,m.r*L.sc,0,TAU);c.stroke();});
+    planet(c,L.cx,L.cy,Math.max(10,24*L.sc/.9),{t:t,ob:.09});
+    MOONS.forEach(function(m){var p=pos(m,t,L);m._p=p;c.fillStyle=m.col;c.beginPath();c.arc(p[0],p[1],m.rad+(sel===m.id?3:0)+1,0,TAU);c.fill();
+      if(sel===m.id){c.strokeStyle='#ffe28a';c.lineWidth=2;c.beginPath();c.arc(p[0],p[1],m.rad+8,0,TAU);c.stroke();}
+      label(c,m.name,p[0]+m.rad+7,p[1]-8,'#f3f4ff',13);});
+    if(sel){var rr=Math.min(w*.2,hh*.34),ax=w*.72,ay=hh*.48;art(c,sel,ax,ay,rr,t,dt);
+      var m2=MOONS.filter(function(x){return x.id===sel;})[0];label(c,m2.name,ax,ay-rr-16,'#f2d08e',20,'center');}
+    else label(c,'Click a moon',w/2,hh-16,'#b6bde8',15,'center');
+  }
+  function down(x,y){
+    var best=null,bd=1e9;MOONS.forEach(function(m){if(!m._p)return;var d=Math.hypot(m._p[0]-x,m._p[1]-y);if(d<bd){bd=d;best=m;}});
+    if(best&&bd<22)pick(best.id);
+  }
+  return {modes:[['moons','Moons']],setMode:setMode,draw:draw,down:down,hideModes:true};
+}
+
+/* ---------- Lab 6: Missions ---------- */
+function Lab6(api){
+  var MS=[
+    {id:'pioneer',name:'Pioneer 11',yr:[1973,1979],col:'#8fe3f0',type:'flyby',dur:6,c:[.35,.1],txt:`Launched 1973. Arrived 1979. It was the first spacecraft to fly by Saturn. It discovered the F ring.`},
+    {id:'v1',name:'Voyager 1',yr:[1977,1980],col:'#ffe28a',type:'flyby',dur:6,c:[.4,.22],txt:`Launched 1977. Arrived 1980. It found ring spokes and kinks, studied Titan's atmosphere, and found new moons.`},
+    {id:'v2',name:'Voyager 2',yr:[1977,1981],col:'#ff9c8f',type:'flyby',dur:7,c:[.45,.82],txt:`Launched 1977. Arrived 1981. It studied the atmosphere and rings in detail. It found new moons and rings.`},
+    {id:'cassini',name:'Cassini-Huygens',yr:[1997,2004],col:'#7be3a7',type:'orbit',dur:8,c:[.5,.05],txt:`Launched 1997. Orbited Saturn from 2004 to 2017. That is 13 years. The Huygens probe landed on Titan. Cassini found the ocean under Enceladus' ice and studied rings and weather.`},
+    {id:'dragonfly',name:'Dragonfly (planned)',yr:[2028,2034],col:'#d9a0ff',type:'lander',dur:8,c:[.3,.9],txt:`Planned. It is a rotorcraft lander, like a big drone. It will fly to many places on Titan and test for signs of life. It will launch in the late 2020s and arrive in the 2030s.`}
+  ];
+  var cur=null,tm=0,phase='idle',btns=[],trail=[],huy=-1,fin=-1,extra=null;
+  function pick(id){
+    cur=MS.filter(function(m){return m.id===id;})[0];tm=0;phase='travel';trail=[];huy=-1;fin=-1;
+    api.info(cur.name,cur.txt);api.discover('m-'+id);
+    btns.forEach(function(b){b.el.setAttribute('aria-pressed',String(b.id===id));});
+    setExtra();
+  }
+  function setExtra(){
+    if(extra){extra.innerHTML='';
+      if(cur&&cur.id==='cassini'){extra.append(h('button',{class:'btn sm',onclick:function(){if(phase==='orbit'){huy=0;api.info('Huygens lands','On January 14, 2005, the Huygens probe parachuted down to Titan. It sent the first pictures from Titan\'s surface.');api.discover('huy');}}},'Release Huygens'),
+        h('button',{class:'btn sm',onclick:function(){if(phase==='orbit'){fin=0;api.info('Grand Finale',`Cassini ended with 22 daring orbits between Saturn and its rings. Then it plunged into Saturn on purpose in 2017. This kept Titan and Enceladus safe from Earth germs. Those moons might have life.`);api.discover('fin');}}},'Grand Finale'));}}
+  }
+  function setMode(){
+    var c=api.controls;c.innerHTML='';btns=[];
+    MS.forEach(function(m){var b=h('button',{class:'chip','aria-pressed':'false',onclick:function(){pick(m.id);}},m.name);btns.push({id:m.id,el:b});c.append(b);});
+    extra=h('div',{style:'display:flex;gap:8px;flex-basis:100%'});c.append(extra);
+    api.info('Choose a mission','Press a mission button to launch it. Watch it fly from Earth to Saturn. Cassini has two extra buttons after it arrives.');
+  }
+  function bez(p0,p1,p2,u){var a=1-u;return [a*a*p0[0]+2*a*u*p1[0]+u*u*p2[0],a*a*p0[1]+2*a*u*p1[1]+u*u*p2[1]];}
+  function draw(c,w,hh,t,dt){
+    var E=[w*.1,hh*.78],Sp=[w*.8,hh*.42],R=Math.min(hh*.1,w*.06);
+    ringSystem(c,w,hh,Sp[0],Sp[1],R,.45,t,{noE:true});
+    c.fillStyle='#2a6fd0';c.beginPath();c.arc(E[0],E[1],10,0,TAU);c.fill();c.fillStyle='#5fc27a';c.fillRect(E[0]-4,E[1]-3,5,4);label(c,'Earth',E[0],E[1]+24,'#b6bde8',14,'center');
+    MS.forEach(function(m){var cp=[w*m.c[0],hh*m.c[1]];c.strokeStyle='rgba(255,255,255,.07)';c.setLineDash([4,6]);c.beginPath();for(var u=0;u<=1;u+=.05){var p=bez(E,cp,Sp,u);u?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);}c.stroke();c.setLineDash([]);});
+    if(!cur){label(c,'Press a mission button',w*.5,hh*.12,'#b6bde8',17,'center');return;}
+    var cp2=[w*cur.c[0],hh*cur.c[1]],pos,yr;
+    if(phase==='travel'){tm+=dt/(cur.dur/(calm?3:1));var u=Math.min(1,tm);pos=bez(E,cp2,Sp,u);yr=Math.round(lerp(cur.yr[0],cur.yr[1],u));if(u>=1){phase=cur.type==='flyby'?'flyby':cur.type==='orbit'?'orbit':'lander';tm=0;if(cur.type==='orbit')api.info(cur.name,cur.txt+' It has arrived! Try the new buttons.');}}
+    else if(phase==='flyby'){tm+=dt/3;var d=bez(E,cp2,Sp,.98),dir=[Sp[0]-d[0],Sp[1]-d[1]],l=Math.hypot(dir[0],dir[1]);pos=[Sp[0]+dir[0]/l*tm*w*.18,Sp[1]+dir[1]/l*tm*w*.18+tm*tm*hh*.1];yr=cur.yr[1];}
+    else if(phase==='orbit'){tm+=dt;var an=tm*1.1*MO;pos=[Sp[0]+Math.cos(an)*R*2.4,Sp[1]+Math.sin(an)*R*2.4*.55];yr=2004+Math.min(13,Math.floor(tm/2));}
+    else{tm+=dt;pos=[Sp[0]-R*3.3+Math.sin(tm*1.2)*14,Sp[1]+R*1.6+Math.cos(tm*1.8)*6];yr=cur.yr[1];
+      c.fillStyle='#d9892f';c.beginPath();c.arc(Sp[0]-R*3.3,Sp[1]+R*3.4,R*1.5,0,TAU);c.fill();label(c,'Titan',Sp[0]-R*3.3,Sp[1]+R*5.2,'#f6c37a',14,'center');}
+    if(phase!=='lander'||true){trail.push(pos);if(trail.length>160)trail.shift();}
+    c.strokeStyle=cur.col;c.lineWidth=2;c.globalAlpha=.6;c.beginPath();trail.forEach(function(p,k){k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);});c.stroke();c.globalAlpha=1;
+    if(fin>=0){fin+=dt;var f=Math.min(1,fin/5),an2=fin*2.4,rr=lerp(R*1.7,0,f*f);pos=[Sp[0]+Math.cos(an2)*rr,Sp[1]+Math.sin(an2)*rr*.9];if(f>=1){label(c,'Cassini plunged into Saturn in 2017',w*.5,hh*.1,'#f2d08e',17,'center');pos=null;}}
+    if(pos){c.fillStyle=cur.col;c.beginPath();c.arc(pos[0],pos[1],6,0,TAU);c.fill();c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();c.moveTo(pos[0]-12,pos[1]);c.lineTo(pos[0]+12,pos[1]);c.stroke();}
+    if(huy>=0&&huy<7)yr=2005;
+    label(c,cur.name+'   Year: '+yr,16,hh*.07,'#f2d08e',18);
+    if(huy>=0){huy+=dt;var f2=Math.min(1,huy/6),bx=w*.5,by=lerp(hh*.2,hh*.74,f2);c.fillStyle='#b5651d';c.fillRect(w*.3,hh*.78,w*.4,hh*.08);label(c,'Titan\'s surface',w*.5,hh*.82,'#2a1604',14,'center');
+      c.strokeStyle='#fff';if(f2<.75){c.beginPath();c.arc(bx,by-18,16,Math.PI,TAU);c.stroke();c.beginPath();c.moveTo(bx-16,by-18);c.lineTo(bx,by);c.moveTo(bx+16,by-18);c.lineTo(bx,by);c.stroke();}
+      c.fillStyle='#ddd';c.fillRect(bx-6,by,12,8);label(c,f2>=1?'Landed on Titan! January 14, 2005':'Huygens drops to Titan',w*.5,hh*.93,'#f6c37a',16,'center');}
+  }
+  return {modes:[['m','Missions']],setMode:setMode,draw:draw,hideModes:true};
+}
+
+/* ---------- Video notes data ---------- */
+var VID=[
+{from:'0:00',to:'3:30',decoy:'cold',items:[
+ ['mc','0:25',"How big is the storm at Saturn's south pole?",['As big as a house','As big as Texas','Bigger than the United States'],2,'It is bigger than the United States.'],
+ ['bl','2:05','Saturn is the _____ planet from the Sun.','sixth'],
+ ['bl','2:41','Saturn spins so fast that it bulges in the middle. This shape is called an _____ spheroid.','oblate'],
+ ['mc','3:05','A person who weighs 150 pounds on Earth would weigh about how much on Saturn?',['137 pounds','150 pounds','300 pounds'],0,'A 150-pound person would weigh about 137 pounds.'],
+ ['bl','3:15','Saturn is the only planet with a _____ less than water.','density'],
+ ['mc','3:23','Why would Saturn float in a giant ocean?',['It is very cold.','It has very low density.','It spins very fast.','It has rings.'],1,'Its gas takes up a lot of space for its mass.']]},
+{from:'3:30',to:'7:00',decoy:'rock',items:[
+ ['bl','3:46','Saturn is a gas giant made of hydrogen and _____.','helium'],
+ ['bl','4:02','One day on Saturn is 10.6 _____ long.','hours'],
+ ['bl','4:02','Saturn takes 29.5 Earth _____ to orbit the Sun.','years'],
+ ['mc','6:38',"What size are the pieces in Saturn's rings?",['Only tiny specks of dust','Only giant boulders','From fine snow to house-size chunks','Only pieces of metal'],2,'They range from powdery snow to chunks as big as houses.'],
+ ['bl','6:46','The rings are made of billions of pieces of water _____.','ice']]},
+{from:'7:00',to:'9:30',decoy:'Newton',items:[
+ ['bl','7:24','The inner rings spin _____ than the outer rings.','faster'],
+ ['mc','8:07','What is one idea for how the rings formed?',['A moon broke apart and the pieces fell into orbit.','Earth threw rocks at Saturn.','The Sun blew dust into space.'],0,'A moon may have been smashed and its pieces fell into orbit.'],
+ ['bl','8:54','In 1610, _____ was the first person to see the rings.','Galileo']]},
+{from:'9:30',to:'24:00',decoy:'square',items:[
+ ['mc','12:40','How old might the rings be, based on the newest evidence?',['About 4.5 billion years old','No older than a few hundred million years','About 10 years old'],1,'Erosion suggests the rings are fairly young.'],
+ ['bl','15:06','Small moons called _____ moons help keep the rings in place.','shepherd'],
+ ['bl','17:52','Winds on Saturn blow up to 1,000 _____ per hour.','miles'],
+ ['bl','22:49','At the north pole, there is a six-sided shape called a _____.','hexagon'],
+ ['mc','23:38','How long has the six-sided shape at the north pole been there?',['A few days','A few months','At least 20 years'],2,'It has been there for at least 20 years.']]},
+{from:'24:00',to:'36:00',decoy:'oxygen',items:[
+ ['mc','25:00','What happened on January 14, 2005?',['The Huygens probe landed on Titan.','Cassini crashed into Saturn.','Voyager was launched.'],0,'Huygens landed on Saturn\'s biggest moon, Titan.'],
+ ['bl','28:50',"Titan's air is made of nitrogen and _____.",'methane'],
+ ['bl','34:42','Enceladus shoots geysers of _____ vapor into space.','water'],
+ ['mc','35:46','What makes heat inside Enceladus?',['Hot lava from volcanoes','Light from the Sun',"Saturn's pull, which makes the ice rub and make friction"],2,"Saturn's pull makes the ice rub, and friction makes heat."]]},
+{from:'36:00',to:'44:00',decoy:'Voyager',items:[
+ ['bl','36:39',"Enceladus feeds Saturn's _____ ring.",'E'],
+ ['mc','40:24','What kind of life might scientists find on Enceladus?',['Fish','Microbes','Lobsters','Plants'],1,'The best we can hope for is microbes.'],
+ ['bl','41:04','The _____ spacecraft has studied Saturn since 2004.','Cassini']]}
+];
+var vidQ=[],vidChunks=[];
+VID.forEach(function(ck,ci){
+  var bank=ck.items.filter(function(x){return x[0]==='bl';}).map(function(x){return x[3];}).concat([ck.decoy]).sort(function(a,b){return a.toLowerCase()<b.toLowerCase()?-1:1;});
+  var qs=ck.items.map(function(it){
+    var o=it[0]==='mc'?{type:'mc',q:it[2]+' ('+it[1]+')',opts:it[3],a:it[4],why:it[5],hint:'Listen near '+it[1]+' in the video.'}
+      :{type:'blank',q:it[2],ans:it[3],bank:bank,time:it[1],hint:'Listen near '+it[1]+' in the video.'};
+    o.id='v'+vidQ.length;o.chunk=ci;vidQ.push(o);return o;});
+  vidChunks.push({from:ck.from,to:ck.to,bank:bank,qs:qs});
+});
+
+/* ---------- Stage content ---------- */
+var STAGES=[null,
+{key:'watch',short:'Video',title:'Stop 1: Watch and Note',video:true,chunks:vidChunks,q:vidQ,
+ intro:'The video has 6 pause points. Watch a little. Pause. Answer the questions. Your answers become your video notes. They go in your report.'},
+{key:'meet',short:'Meet Saturn',title:'Stop 1: Meet Saturn',lab:Lab1,
+ intro:`Saturn is the sixth planet from the Sun. It is a gas giant. Run three tests to see what makes it special.`,
+ disc:[['spin','Spin Saturn faster than 60%'],['float','Drop Earth and Saturn in the water'],['size','Line up Earths across Saturn and the rings']],
+ q:[
+  {id:'1a',type:'mc',q:'What makes Saturn special among the planets?',opts:['It is the only planet with rings.','It has the lowest density. It would float in water.','It is the closest planet to the Sun.','It is the smallest planet.'],a:1,hint:'Try the Float test.',why:'Saturn is less dense than water.'},
+  {id:'1b',type:'mc',q:'Why does Saturn bulge in the middle and look flattened at the poles?',opts:['It spins very fast.','Comets hit it.','Its rings squeeze it.','It is very cold.'],a:0,hint:'Try Spin it.',why:'Fast spin makes it bulge. The shape is called an oblate spheroid.'},
+  {id:'1c',type:'mc',q:'How does a day on Saturn compare to a day on Earth?',opts:['Longer: about 48 hours','Shorter: about 10.6 hours','The same: 24 hours','Longer: about 100 hours'],a:1,hint:'Look at the readout under Spin it.',why:'Saturn spins once about every 10.6 hours.'},
+  {id:'1d',type:'mc',q:'About how many Earths fit side by side across Saturn (not counting rings)?',opts:['1','About 9','About 21','About 100'],a:1,hint:'Try Size check.',why:'Saturn is about 9.1 times wider than Earth.'}
+ ]},
+{key:'inside',short:'Inside Saturn',title:'Stop 2: Inside Saturn',lab:Lab2,
+ intro:`Saturn has no solid surface. Slice it open and see what it is made of.`,
+ disc:[['layers','Click all four layers'],['probe','Send a probe down'],['gas','Click one dot of each gas']],
+ q:[
+  {id:'2a',type:'mc',q:'Which list shows the layers in order, from the outside to the center?',opts:['Atmosphere, liquid hydrogen, liquid metallic hydrogen, core','Core, liquid hydrogen, metallic hydrogen, atmosphere','Liquid hydrogen, atmosphere, core, metallic hydrogen'],a:0,hint:'Look at the Cutaway.',why:'You start in the atmosphere and go down to the core.'},
+  {id:'2b',type:'mc',q:'Which gas makes up most of Saturn\'s atmosphere?',opts:['Oxygen','Nitrogen','Hydrogen','Carbon dioxide'],a:2,hint:'Try the Gas mix.',why:'It is about 96% hydrogen.'},
+  {id:'2c',type:'mc',q:'What gives Saturn its yellow-brown color?',opts:['Sand and dust','Ammonia crystals and haze in the upper clouds','Rust on the surface','Light bouncing off the moons'],a:1,hint:'Click the Upper atmosphere.',why:'Ammonia crystals and haze color the clouds.'},
+  {id:'2d',type:'mc',q:'What is special about liquid metallic hydrogen?',opts:['It is freezing cold.','It can carry electricity.','It floats on water.','It glows blue.'],a:1,hint:'Click that layer.',why:'Under huge pressure, hydrogen acts like a metal.'},
+  {id:'2e',type:'mc',q:'Why can a spacecraft not go very deep into Saturn?',opts:['The pressure gets so high it crushes the craft.','It runs into a solid floor.','The rings block the way.','The Sun is too bright.'],a:0,hint:'Send a probe.',why:'Deeper means more pressure. The craft would implode.'}
+ ]},
+{key:'weather',short:'Weather',title:'Stop 3: Storms and Poles',lab:Lab3,
+ intro:`Saturn is a wild place. Visit its fast winds, its strange north pole and its giant storms.`,
+ disc:[['winds','Find the fastest wind band'],['hex','Count the sides of the north pole shape'],['south','Compare the south pole storm to the U.S.'],['storm','Watch a Great White Spot wrap the planet']],
+ q:[
+  {id:'3a',type:'mc',q:'How fast can Saturn\'s winds blow?',opts:['About 10 miles per hour','About 100 miles per hour','About 1,000 miles per hour','About 1 million miles per hour'],a:2,hint:'Click the middle band.',why:'Winds reach about 1,000 miles per hour.'},
+  {id:'3b',type:'mc',q:'What is the unique shape at Saturn\'s north pole?',opts:['A six-sided jet stream that stays in place','A ring shaped like a star','A giant mountain','A moon'],a:0,hint:'Try North pole.',why:'The hexagon has been there for at least 20 years.'},
+  {id:'3c',type:'mc',q:'What makes the south pole storm like a hurricane on Earth?',opts:['It brings rain to the ground.','It has an eye and an eye wall.','It is made of water.','It moves along the equator.'],a:1,hint:'Try South pole.',why:'It is the only storm like this found on another planet.'},
+  {id:'3d',type:'mc',q:'How often do Great White Spots happen on Saturn?',opts:['Every day','About once every Earth year','About once every Saturn year (29.5 Earth years)','Never'],a:2,hint:'Read the Great White Spot info.',why:'They show up about once every Saturn year.'}
+ ]},
+{key:'rings',short:'Rings',title:'Stop 4: The Rings',lab:Lab4,
+ intro:`The rings make Saturn famous. They are huge, but very thin. Explore them four ways.`,
+ disc:[['ringclick','Click 3 different rings'],['edge','Tilt the rings edge-on'],['far','Zoom out to find the E ring'],['race','Finish a lap in the Orbit race'],['zoom','Click a chunk in Zoom in'],['shep','Click a shepherd moon']],
+ q:[
+  {id:'4a',type:'mc',q:'What are Saturn\'s rings mostly made of?',opts:['Solid rock slabs','Gas','Water ice pieces','Metal'],a:2,hint:'Try Zoom in.',why:'The pieces are mostly water ice.'},
+  {id:'4b',type:'mc',q:'How many main named rings does Saturn have (A through G)?',opts:['3','7','12','100'],a:1,hint:'Count the ring buttons. One is a gap.',why:'The rings are named A, B, C, D, E, F and G.'},
+  {id:'4c',type:'mc',q:'Which ring is the brightest and most opaque?',opts:['The A ring','The B ring','The C ring','The F ring'],a:1,hint:'Click each ring and read.',why:'The B ring is packed with ice.'},
+  {id:'4d',type:'mc',q:'What is the gap between ring B and ring A called?',opts:['The Encke Gap','The Cassini Division','The Crepe Ring','Storm Alley'],a:1,hint:'Click the dark gap.',why:'It is about 4,700 km wide.'},
+  {id:'4e',type:'mc',q:'The E ring is fed by material from which moon?',opts:['Titan','Mimas','Enceladus','Phoebe'],a:2,hint:'Zoom out on the Ring map.',why:'Geysers on Enceladus feed the E ring.'},
+  {id:'4f',type:'mc',q:'The rings are very wide. About how thick are they in many places?',opts:['About 30 feet (10 meters)','About 3,000 miles','About 173,000 miles','About 1 inch'],a:0,hint:'Tilt the rings edge-on.',why:'They are wide but paper thin.'},
+  {id:'4g',type:'mc',q:'Why do chunks in the inner rings move faster than chunks in the outer rings?',opts:['They are lighter.','They are closer to Saturn, so its gravity pulls harder.','They are hotter.','They are pushed by the Sun.'],a:1,hint:'Try the Orbit race.',why:'Closer objects feel stronger gravity and orbit faster.'},
+  {id:'4h',type:'mc',q:'What do shepherd moons do?',opts:['They crash into the rings.','Their gravity helps keep ring pieces in place.','They make the rings glow.','They make the rings spin backward.'],a:1,hint:'Try Shepherd moons.',why:'Prometheus and Pandora herd the F ring.'}
+ ]},
+{key:'moons',short:'Moons',title:'Stop 5: The Moons',lab:Lab5,
+ intro:`Saturn has more than 270 known moons. Meet six of the most interesting ones.`,
+ disc:[['moon-mimas','Meet Mimas'],['moon-enceladus','Meet Enceladus'],['moon-titan','Meet Titan'],['moon-hyperion','Meet Hyperion'],['moon-iapetus','Meet Iapetus'],['moon-phoebe','Meet Phoebe']],
+ q:[
+  {id:'5a',type:'match',q:'Match each moon to its most special feature.',items:[['Titan','C'],['Enceladus','B'],['Mimas','A'],['Iapetus','D'],['Hyperion','E']],
+   opts:[['A','Has a big crater. It looks like the Death Star.'],['B','Has water geysers at the south pole.'],['C','Has rivers and lakes of liquid methane.'],['D','Has two tones: one side dark, one side bright.'],['E','Has a sponge-like, porous look.']],hint:'Click each moon and read.'},
+  {id:'5b',type:'mc',q:'Why are Titan and Enceladus exciting in the search for life?',opts:['Both are as warm as Earth.','Titan makes organic compounds in its air. Enceladus has an ocean under its ice.','Both have oxygen to breathe.','Both have forests.'],a:1,hint:'Read the Titan and Enceladus info.',why:'Organic compounds and liquid water are ingredients for life.'},
+  {id:'5c',type:'mc',q:'What do scientists think Phoebe is?',opts:['A piece of Earth','A captured object from the Kuiper Belt','A comet that never left','A star'],a:1,hint:'Click Phoebe.',why:'It did not form with Saturn.'},
+  {id:'5d',type:'mc',q:'Why do the geysers on Enceladus shoot so high?',opts:['Its gravity is low and it has no air to hold them in.','It is very hot on the surface.','Wind pushes them up.','The Sun heats them.'],a:0,hint:'Think about gravity and air.',why:'Low gravity and no atmosphere let them rise hundreds of miles.'}
+ ]},
+{key:'missions',short:'Missions',title:'Stop 6: Missions to Saturn',lab:Lab6,
+ intro:`Spacecraft helped us learn all of this. Launch each one and see what it found.`,
+ disc:[['m-pioneer','Launch Pioneer 11'],['m-v1','Launch Voyager 1'],['m-v2','Launch Voyager 2'],['m-cassini','Launch Cassini-Huygens'],['m-dragonfly','Launch Dragonfly'],['huy','Release Huygens'],['fin','Watch the Grand Finale']],
+ q:[
+  {id:'6a',type:'mc',q:'What was the first spacecraft to fly by Saturn?',opts:['Voyager 1','Pioneer 11','Cassini','Dragonfly'],a:1,hint:'Look at the years.',why:'Pioneer 11 arrived in 1979.'},
+  {id:'6b',type:'mc',q:'How long did Cassini orbit Saturn?',opts:['About 1 year','About 4 years','About 13 years','About 30 years'],a:2,hint:'Launch Cassini.',why:'It orbited from 2004 to 2017.'},
+  {id:'6c',type:'mc',q:'What can Dragonfly do that earlier missions could not?',opts:['Fly like a drone to many places on Titan','Land on Saturn','Bring rocks back to Earth','Fly through the rings'],a:0,hint:'Launch Dragonfly.',why:'It is a rotorcraft lander.'},
+  {id:'6d',type:'mc',q:'Which mission landed a probe on Titan?',opts:['Voyager 1','Pioneer 11','Cassini-Huygens','Dragonfly'],a:2,hint:'Launch Cassini and release Huygens.',why:'Huygens landed in January 2005.'},
+  {id:'6e',type:'mc',q:'Why did scientists crash Cassini into Saturn on purpose?',opts:['It was broken.','To protect moons that might have life from Earth germs.','To take a last picture.','To bump the rings.'],a:1,hint:'Watch the Grand Finale.',why:'Titan and Enceladus might hold life.'},
+  {id:'6f',type:'pick',q:'Step 1: Which mission do you think was the MOST important?',opts:['Pioneer 11','Voyager 1','Voyager 2','Cassini-Huygens','Dragonfly']},
+  {id:'6g',type:'pick',q:'Step 2: What is the best reason for your choice?',opts:['It was first.','It gave us the most new data.','It found places that might have life.','It will teach us the most in the future.']},
+  {id:'6h',type:'open',q:'Step 3: Write one or two sentences. Start with: "I think ___ was the most important mission because ..."'}
+ ]}
+];
+
+/* ---------- Engine ---------- */
+var cv,ctx,W=0,HH=0,dpr=1,lab=null,last=0,T=0,infoT,infoB,discUL,rafOn=false,ro=null;
+var api={
+  controls:null,
+  info:function(t,b){if(infoT){infoT.textContent=t;infoB.textContent=b;}},
+  discover:function(id){
+    if(S.disc[id]===true)return;S.disc[id]=true;toast('Discovery!');paintDisc();
+  }
+};
+function toast(t){var e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('show');},1400);}
+function fit(){if(!cv)return;var r=cv.getBoundingClientRect();dpr=Math.min(2,window.devicePixelRatio||1);W=r.width;HH=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(HH*dpr);}
+function frame(ts){
+  requestAnimationFrame(frame);
+  var dt=Math.min(.05,(ts-last)/1000||0);last=ts;T+=dt;
+  if(!cv||!lab||!W)return;
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,HH);
+  drawSpace(ctx,W,HH,T);
+  try{lab.draw(ctx,W,HH,T,dt);}catch(e){}
+}
+requestAnimationFrame(frame);
+function paintDisc(){
+  if(!discUL||!S.stage||!STAGES[S.stage])return;
+  discUL.innerHTML='';
+  STAGES[S.stage].disc.forEach(function(d){discUL.append(h('li',{class:S.disc[d[0]]===true?'on':''},d[1]));});
+}
+function stageDone(n){return STAGES[n].q.every(function(q){var a=S.ans[q.id];return a&&a.done;});}
+function unlocked(){var u=1;while(u<=N&&stageDone(u))u++;return u;}
+function paintSteps(){
+  var nav=document.getElementById('steps');nav.innerHTML='';var u=unlocked();
+  for(var i=1;i<=N+1;i++){
+    (function(i){
+      var nm=i<=N?STAGES[i].short:'Report';
+      nav.append(h('button',{class:'step'+((i<=N&&stageDone(i))?' done':''),'aria-current':S.stage===i?'step':false,disabled:S.stage===0||i>u,onclick:function(){go(i);}},(i<=N&&stageDone(i)?'✓ ':'')+nm));
+    })(i);
+  }
+  document.getElementById('who').textContent=S.name?'Pilot: '+S.name:'';
+}
+
+/* questions */
+function renderQ(q,idx,onChange){
+  var a=S.ans[q.id]||(S.ans[q.id]={tries:0,wrong:[],done:false});
+  var box=h('section',{class:'q'});
+  var fb=h('p',{class:'fb',role:'status'});
+  var body=h('div');
+  var qp=h('p',{class:'qtext'});
+  if(q.type!=='blank')qp.append(h('span',{class:'qn'},(idx+1)+'.'),' '+q.q);
+  box.append(qp,body,fb);
+  function paint(){
+    body.innerHTML='';
+    if(q.type==='mc'){
+      var g=h('div',{class:'opts',role:'group'});
+      q.opts.forEach(function(o,i){
+        var bad=a.wrong.indexOf(i)>=0,ok=a.done&&a.pick===i;
+        g.append(h('button',{class:'opt'+(bad?' bad':'')+(ok?' ok':''),disabled:a.done||bad,onclick:function(){
+          a.tries++;
+          if(i===q.a){a.done=true;a.pick=i;a.first=a.tries===1;fb.className='fb ok';fb.textContent='Correct! '+q.why;}
+          else{a.wrong.push(i);fb.className='fb bad';fb.textContent='Not quite. Hint: '+q.hint;}
+          paint();onChange();
+        }},h('b',null,String.fromCharCode(65+i)),h('span',null,o)));
+      });
+      body.append(g);
+      if(a.done){fb.className='fb ok';fb.textContent='Correct! '+q.why;}
+    }else if(q.type==='pick'){
+      var g2=h('div',{class:'opts',role:'group'});
+      q.opts.forEach(function(o,i){g2.append(h('button',{class:'opt'+(a.pick===i?' sel':''),'aria-pressed':String(a.pick===i),onclick:function(){a.pick=i;a.done=true;paint();onChange();}},h('b',null,String.fromCharCode(65+i)),h('span',null,o)));});
+      body.append(g2);
+    }else if(q.type==='match'){
+      var tb=h('table',{class:'match'}),sels=[];
+      q.items.forEach(function(it,i){
+        var s=h('select',{'aria-label':'Match '+it[0],class:a.res?(a.res[i]?'ok':'bad'):''},h('option',{value:''},'Choose...'),q.opts.map(function(o){return h('option',{value:o[0]},o[0]+'. '+o[1]);}));
+        if(a.vals&&a.vals[i])s.value=a.vals[i];if(a.done)s.disabled=true;
+        sels.push(s);tb.append(h('tr',null,h('td',{style:'width:28%;font-weight:700'},it[0]),h('td',null,s)));
+      });
+      body.append(tb);
+      if(!a.done)body.append(h('button',{class:'btn sm',style:'margin-top:10px',onclick:function(){
+        var vals=sels.map(function(s){return s.value;});
+        if(vals.some(function(v){return !v;})){fb.className='fb bad';fb.textContent='Pick an answer for every moon first.';return;}
+        a.tries++;a.vals=vals;a.res=vals.map(function(v,i){return v===q.items[i][1];});
+        if(a.res.every(Boolean)){a.done=true;a.first=a.tries===1;a.pick=1;}
+        paint();onChange();
+        if(!a.done){fb.className='fb bad';fb.textContent='Some are not right yet. Fix the red ones. Hint: '+q.hint;}
+      }},'Check my answers'));
+      if(a.done){fb.className='fb ok';fb.textContent='All matched!';}
+    }else if(q.type==='blank'){
+      qp.innerHTML='';var pp=q.q.split('_____');
+      var bs=h('select',{'aria-label':'Choose the missing word',class:a.done?'ok':(a.wrong.length?'bad':''),disabled:a.done,onchange:function(e){
+        var v=e.target.value;if(!v)return;a.tries++;
+        if(v===q.ans){a.done=true;a.pick=v;a.first=a.tries===1;fb.className='fb ok';fb.textContent='Correct!';}
+        else{a.wrong.push(v);fb.className='fb bad';fb.textContent='Not quite. '+q.hint;}
+        paint();onChange();}},h('option',{value:''},'choose...'),q.bank.map(function(w){return h('option',{value:w,disabled:a.wrong.indexOf(w)>=0},w);}));
+      if(a.done)bs.value=q.ans;
+      qp.append(h('span',{class:'qn'},(idx+1)+'.'),' '+pp[0],bs,pp[1]+' ',h('span',{class:'qt'},'('+q.time+')'));
+      if(a.done){fb.className='fb ok';fb.textContent='Correct!';}
+    }else{
+      var ta=h('textarea',{'aria-label':'Your answer',placeholder:'I think ... was the most important mission because ...',oninput:function(e){a.text=e.target.value;a.done=a.text.trim().length>=15;fb.textContent=a.done?'Saved.':'Write a little more.';fb.className='fb '+(a.done?'ok':'');onChange();}});
+      ta.value=a.text||'';body.append(ta);if(a.done){fb.className='fb ok';fb.textContent='Saved.';}
+    }
+  }
+  paint();return box;
+}
+
+/* ---------- Pages ---------- */
+function go(n){
+  S.stage=n;window.scrollTo(0,0);
+  if(n===0)renderStart();else if(n===N+1)renderReport();else if(STAGES[n].video)renderVideo(n);else renderStage(n);
+  paintSteps();
+}
+function mountCanvas(factory){
+  cv=h('canvas',{id:'cv',role:'img','aria-label':'Interactive Saturn simulation'});
+  var c=cv;ctx=cv.getContext('2d');
+  if(ro)ro.disconnect();
+  ro=new ResizeObserver(function(){fit();});ro.observe(cv);
+  function pt(e){var r=c.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];}
+  cv.addEventListener('pointerdown',function(e){var p=pt(e);if(lab&&lab.down)lab.down(p[0],p[1],W,HH);});
+  return cv;
+}
+function renderStart(){
+  main.innerHTML='';infoT=infoB=discUL=null;
+  var canvas=mountCanvas();
+  var ctr=h('div');api.controls=ctr;
+  var name=h('input',{class:'name',id:'nm',placeholder:'Type your name','aria-label':'Your name',maxlength:'40',value:S.name});
+  var go1=h('button',{class:'btn',onclick:function(){var v=name.value.trim();if(!v){name.focus();toast('Type your name first');return;}S.name=v;go(1);}},'Start the mission');
+  name.addEventListener('keydown',function(e){if(e.key==='Enter')go1.click();});
+  main.append(h('div',{class:'grid hero'},
+    h('div',{class:'card labcard'},canvas),
+    h('div',null,h('h1',null,'Mission to Saturn'),
+      h('p',{class:'lead'},'You are the flight crew. Saturn is a gas giant with a huge system of rings and many moons. Your job is to explore it.'),
+      h('ol',{class:'steps6'},h('li',null,'Watch the video. Pause and answer at each pause point.'),h('li',null,'Explore the picture at each stop.'),h('li',null,'Click things. Make discoveries.'),h('li',null,'Answer the questions.'),h('li',null,'Get your report at the end.')),
+      h('p',{class:'lead'},'You will visit 7 stops: the video, Saturn, the inside, storms, rings, moons and missions.'),
+      h('label',{for:'nm'},'Your name'),name,go1,
+      h('p',{class:'eyebrow',style:'margin-top:14px'},'Tip: do not refresh the page. Your answers would be lost.'))));
+  lab=Lab0(api);fit();
+}
+function renderVideo(n){
+  var st=STAGES[n];main.innerHTML='';infoT=infoB=discUL=null;lab=null;cv=null;
+  if(ro)ro.disconnect();
+  var player=h('iframe',{src:'https://www.youtube.com/embed/6Zc0SOnM5Us',title:'Introduction to Saturn video',allowfullscreen:true,allow:'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',style:'width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#000'});
+  var panel=h('div'),nextBtn=h('button',{class:'btn'},'Next stop: '+STAGES[n+1].short),hint=h('span',{class:'hint'});
+  nextBtn.addEventListener('click',function(){go(n+1);});
+  function isDone(q){var a=S.ans[q.id];return !!(a&&a.done);}
+  function refreshNav(){var left=st.q.filter(function(q){return !isDone(q);}).length;nextBtn.disabled=left>0;hint.textContent=left>0?left+' question'+(left>1?'s':'')+' left in the video notes':'Video notes done. Great work!';paintSteps();}
+  function paintChunks(){
+    panel.innerHTML='';var total=st.chunks.length;
+    st.chunks.forEach(function(ck,ci){
+      var k=ci+1;
+      if(ci<S.vc){panel.append(h('div',{class:'card pp done'},'✓ Pause point '+k+' done ('+ck.from+' to '+ck.to+')'));return;}
+      if(ci>S.vc){panel.append(h('div',{class:'card pp locked'},'Pause point '+k+': '+ck.from+' to '+ck.to+'. Locked until you finish the one before.'));return;}
+      var card=h('div',{class:'card pp'}),msg=h('p',{class:'eyebrow'});
+      var nb=h('button',{class:'btn',onclick:function(){S.vc++;paintChunks();window.scrollTo({top:0,behavior:'smooth'});}},'Next pause point');
+      function upd(){var d=ck.qs.every(isDone);nb.disabled=!d;msg.textContent=d?(k<total?'Nice! Move on when you are ready.':''):'Answer every question to unlock the next step.';}
+      card.append(h('h3',{class:'sec',style:'margin-top:0'},'Pause point '+k+' of '+total),
+        h('ol',null,h('li',null,'Press play on the video.'),h('li',null,'Watch from '+ck.from+' to '+ck.to+'.'),h('li',null,'Pause the video.'),h('li',null,'Answer the questions below.')),
+        h('p',{class:'bank'},h('b',null,'Word bank: '),ck.bank.join('  ·  ')));
+      ck.qs.forEach(function(q){card.append(renderQ(q,st.q.indexOf(q),function(){upd();refreshNav();}));});
+      card.append(msg);if(k<total)card.append(nb);
+      upd();panel.append(card);
+    });
+  }
+  var back=h('button',{class:'btn ghost',onclick:function(){go(0);}},'Back to start');
+  main.append(h('div',{class:'grid'},
+    h('div',{class:'card labcard'},player,h('p',{class:'eyebrow',style:'margin:10px 0 0'},'Video not showing? ',h('a',{href:'https://www.youtube.com/watch?v=6Zc0SOnM5Us',target:'_blank',rel:'noopener',style:'color:var(--ice)'},'Open it in a new tab.'))),
+    h('div',null,h('p',{class:'eyebrow'},'Stop 1 of '+N),h('h2',{class:'stage-title'},'Watch and Note'),h('p',{class:'lead'},st.intro),panel,
+      h('div',{class:'nav'},back,hint,nextBtn))));
+  paintChunks();refreshNav();
+}
+function renderStage(n){
+  var st=STAGES[n];main.innerHTML='';
+  var canvas=mountCanvas();
+  var modesEl=h('div',{id:'modes',role:'group','aria-label':'Choose an activity'});
+  var ctr=h('div',{id:'controls'});api.controls=ctr;
+  infoT=h('h3');infoB=h('p');discUL=h('ul',{class:'disc'});
+  lab=st.lab(api);
+  var cur=lab.modes[0][0];
+  var mbtns=[];
+  if(!lab.hideModes){
+    lab.modes.forEach(function(m){var b=h('button',{class:'tab','aria-pressed':String(m[0]===cur),onclick:function(){cur=m[0];mbtns.forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});lab.setMode(m[0]);}},m[1]);mbtns.push(b);modesEl.append(b);});
+  }
+  var qBox=h('div'),nextBtn=h('button',{class:'btn'}),hint=h('span',{class:'hint'});
+  function refresh(){
+    var left=st.q.filter(function(q){var a=S.ans[q.id];return !(a&&a.done);}).length;
+    nextBtn.disabled=left>0;nextBtn.textContent=n<N?'Next stop: '+STAGES[n+1].short:'Build my report';
+    hint.textContent=left>0?(left+' question'+(left>1?'s':'')+' left to answer'):'All done here. Great work!';
+    paintSteps();
+  }
+  st.q.forEach(function(q,i){qBox.append(renderQ(q,i,refresh));});
+  nextBtn.addEventListener('click',function(){go(n+1);});
+  var back=h('button',{class:'btn ghost',onclick:function(){go(n-1<1?0:n-1);}},n>1?'Back':'Back to start');
+  if(n===1)back.onclick=function(){go(0);};
+  main.append(h('div',{class:'grid'},
+    h('div',{class:'card labcard'},modesEl,canvas,ctr),
+    h('div',null,h('p',{class:'eyebrow'},'Stop '+n+' of '+N),h('h2',{class:'stage-title'},st.title.replace(/^Stop \d: /,'')),h('p',{class:'lead'},st.intro),
+      h('div',{class:'info',role:'status'},infoT,infoB),
+      h('h3',{class:'sec'},'Discoveries'),discUL,
+      h('h3',{class:'sec'},'Check yourself'),qBox,
+      h('div',{class:'nav'},back,hint,nextBtn))));
+  fit();lab.setMode(cur);paintDisc();refresh();
+}
+
+/* ---------- Report ---------- */
+function summary(){
+  var out=[],total=0,first=0,done=0;
+  for(var n=1;n<=N;n++){
+    var st=STAGES[n],rows=[];
+    st.q.forEach(function(q,i){
+      var a=S.ans[q.id]||{};var ans='',tag='';
+      if(q.type==='mc'){ans=q.opts[q.a];total++;if(a.done)done++;if(a.first)first++;tag=a.first?'Correct on 1st try':'Correct after '+a.tries+' tries';}
+      else if(q.type==='blank'){ans=q.q.replace('_____',q.ans);total++;if(a.done)done++;if(a.first)first++;tag=a.first?'Correct on 1st try':'Correct after '+a.tries+' tries';}
+      else if(q.type==='match'){ans=q.items.map(function(it){var o=q.opts.filter(function(x){return x[0]===it[1];})[0];return it[0]+' = '+o[1];}).join('; ');total++;if(a.done)done++;if(a.first)first++;tag=a.first?'Correct on 1st try':'Correct after '+a.tries+' tries';}
+      else if(q.type==='pick'){ans=a.pick!=null?q.opts[a.pick]:'(no answer)';tag='My choice';}
+      else{ans=a.text||'(no answer)';tag='My response';}
+      rows.push({q:q.type==='blank'?'Video note ('+q.time+')':q.q,a:ans,t:tag});
+    });
+    out.push({title:'Stop '+n+': '+st.title.replace(/^Stop \d: /,''),rows:rows});
+  }
+  return {stages:out,total:total,first:first,done:done};
+}
+function renderReport(){
+  main.innerHTML='';infoT=infoB=discUL=null;lab=null;cv=null;
+  var s=summary(),today=new Date().toLocaleDateString();
+  var wrap=h('div',{class:'card report'},
+    h('h2',null,'Mission Report: Saturn'),
+    h('p',null,'Pilot: '+S.name+'   |   Date: '+today),
+    h('div',{class:'score'},h('div',null,h('b',null,s.first+' / '+s.total),'Right on the first try'),h('div',null,h('b',null,s.done+' / '+s.total),'Questions finished')));
+  s.stages.forEach(function(st){
+    wrap.append(h('h3',{class:'sec'},st.title));
+    var ul=h('ul',{class:'rq'});
+    st.rows.forEach(function(r,i){ul.append(h('li',null,h('div',null,(i+1)+'. '+r.q),h('div',{class:'a'},r.a),h('div',{class:'t'},r.t)));});
+    wrap.append(ul);
+  });
+  wrap.append(h('div',{class:'nav noprint'},
+    h('button',{class:'btn ghost',onclick:function(){go(N);}},'Back'),
+    h('span',{class:'hint'},'Save the PDF. Then turn it in on Canvas.'),
+    h('span',null,h('button',{class:'btn',onclick:savePDF},'Download PDF'),' ',h('button',{class:'btn ghost',onclick:function(){window.print();}},'Print'))));
+  main.append(wrap);
+}
+function clean(s){return String(s).replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/\u2192/g,'->').replace(/[^\x00-\xFF]/g,'');}
+async function savePDF(){
+  var J=window.jspdf&&window.jspdf.jsPDF;
+  if(!J){toast('Using Print instead');window.print();return;}
+  var doc=new J({unit:'pt',format:'letter'}),M=54,Wd=612-2*M,y=M;
+  function add(txt,size,bold,gap){
+    doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);
+    doc.splitTextToSize(clean(txt),Wd).forEach(function(l){if(y>792-M){doc.addPage();y=M;}doc.text(l,M,y);y+=size*1.3;});y+=gap||0;
+  }
+  var s=summary();
+  add('Mission Report: Saturn',20,true,4);
+  add('Pilot: '+S.name+'    Date: '+new Date().toLocaleDateString(),11,false,2);
+  add('Right on the first try: '+s.first+' of '+s.total+'    Questions finished: '+s.done+' of '+s.total,11,true,10);
+  s.stages.forEach(function(st){
+    add(st.title,14,true,4);
+    st.rows.forEach(function(r,i){add((i+1)+'. '+r.q,10.5,true,1);add('Answer: '+r.a,10.5,false,0);add('('+r.t+')',9,false,6);});
+    y+=6;
+  });
+  var fname='Saturn_Mission_'+(clean(S.name).replace(/[^\w]+/g,'_')||'Student')+'.pdf';
+  var dl=null;
+  try{if(typeof claude!=='undefined'&&claude&&claude.use)dl=await claude.use('downloads');}catch(e){dl=null;}
+  if(dl){try{await dl.save({filename:fname,data:doc.output('arraybuffer')});toast('PDF ready');}catch(e){if(e&&e.code==='declined')return;doc.save(fname);}}
+  else doc.save(fname);
+}
+
+go(0);
+})();
+</script>
+</body>
+</html>
